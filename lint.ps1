@@ -49,22 +49,26 @@ $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # ====================== Helper Functions ======================
 
-function Write-Step {
+function Write-Step
+{
     param([string]$Message, [string]$Color = "Yellow")
     Write-Host "`n>>> $Message" -ForegroundColor $Color
 }
 
-function Write-Success {
+function Write-Success
+{
     param([string]$Message)
     Write-Host "[OK] $Message" -ForegroundColor Green
 }
 
-function Write-ErrorMsg {
+function Write-ErrorMsg
+{
     param([string]$Message)
     Write-Host "[FAIL] $Message" -ForegroundColor Red
 }
 
-function Run-Black {
+function Run-Black
+{
     param(
         [string]$Name,
         [string]$CommandBase
@@ -75,31 +79,34 @@ function Run-Black {
     # Собираем все пути в одну строку (с пробелами)
     $pathList = $Paths -join " "
 
-    # Автофикс
-    $fullFix = "poetry run $CommandBase $pathList"
+    # Команда
+    $fullCommand = "poetry run $CommandBase $pathList"
 
     Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
 
-    # Execute and let output go directly to console
-    Invoke-Expression $fullFix
+    # Black выводит в stderr, но мы просто выполняем команду и показываем вывод
+    Invoke-Expression $fullCommand
 
     Write-Host "---------------------" -ForegroundColor DarkGray
 
     $exitCode = $LASTEXITCODE
 
-    if ($exitCode -eq 0) {
+    if ($exitCode -eq 0)
+    {
         Write-Success "$Name passed"
         return $true
     }
 
-    if ($CommandBase -and $NoFix) {
+    if ($CommandBase -and $NoFix)
+    {
         Write-Host "Tip: Run without -NoFix to auto-fix" -ForegroundColor Yellow
     }
 
     return $false
 }
 
-function Run-Checker {
+function Run-Checker
+{
     param(
         [string]$Name,
         [string]$CheckCommand,
@@ -107,7 +114,8 @@ function Run-Checker {
         [switch]$Skip
     )
 
-    if ($Skip) {
+    if ($Skip)
+    {
         Write-Host "Skipping $Name..." -ForegroundColor DarkGray
         return $true
     }
@@ -116,20 +124,35 @@ function Run-Checker {
 
     $pathList = $Paths -join " "
 
-    # ====================== AUTO-FIX ======================
-    if (-not $NoFix -and $FixCommand) {
+    # ====================== AUTO-FIX MODE ======================
+    if (-not $NoFix -and $FixCommand)
+    {
         $fullFix = "poetry run $FixCommand $pathList"
 
         Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
 
-        # Execute and let output go directly to console
-        Invoke-Expression $fullFix
+        # Для Isort в режиме автофикса: вывод в stdout, просто выполняем
+
+        $output = Invoke-Expression $fullFix 2>&1
+        # Показываем захваченный вывод
+        if ($output)
+        {
+            $output | ForEach-Object {
+                Write-Host $_.ToString()
+            }
+        }
+        else
+        {
+            Write-Host "(no output)" -ForegroundColor DarkGray
+        }
+
 
         Write-Host "---------------------" -ForegroundColor DarkGray
 
         $exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0)
+        {
             Write-ErrorMsg "$Name fix failed"
             return $false
         }
@@ -143,50 +166,68 @@ function Run-Checker {
 
     Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
 
-    # Execute and capture output to show it
-    $output = Invoke-Expression $fullCheck 2>&1
+    # Для check mode нужно захватить вывод для анализа
 
-    # Show captured output
-    if ($output) {
+    if ($Name -eq "Isort")
+    {
+        Invoke-Expression $fullCheck
+    }
+    else
+    {
+        $output = Invoke-Expression $fullCheck 2>&1
+    }
+
+    # Показываем захваченный вывод
+    if ($output)
+    {
         $output | ForEach-Object {
             Write-Host $_.ToString()
         }
+    }
+    else
+    {
+        Write-Host "(no output)" -ForegroundColor DarkGray
     }
 
     Write-Host "---------------------" -ForegroundColor DarkGray
 
     $exitCode = $LASTEXITCODE
 
-    # Determine if there are errors
+    # Определяем наличие ошибок
     $hasIssues = $false
 
-    if ($Name -eq "Mypy") {
+    if ($Name -eq "Mypy")
+    {
+        # Mypy: проверяем наличие паттернов ошибок в выводе
         $hasIssues = ($output | Where-Object {
             $_ -match "(?i)error:|no-untyped-def|undefined|incompatible"
         }).Count -gt 0
-        if (-not $hasIssues -and $exitCode -ne 0) {
-            $hasIssues = $true
-        }
     }
-    elseif ($Name -eq "Flake8") {
-        $hasIssues = $exitCode -ne 0
-        # Also show output if there are issues (output already shown above)
-    }
-    elseif ($Name -eq "Isort") {
+    elseif ($Name -eq "Flake8")
+    {
+        # Flake8: ненулевой exit code означает ошибки
         $hasIssues = $exitCode -ne 0
     }
-    else {
+    elseif ($Name -eq "Isort")
+    {
+        # Isort в check mode: ненулевой exit code означает ошибки
+        $hasIssues = $exitCode -ne 0
+    }
+    else
+    {
         $hasIssues = $exitCode -ne 0
     }
 
-    if (-not $hasIssues) {
+    if (-not $hasIssues)
+    {
         Write-Success "$Name passed"
         return $true
     }
 
     Write-ErrorMsg "$Name failed"
 
-    if ($FixCommand -and $NoFix) {
+    if ($FixCommand -and $NoFix)
+    {
         Write-Host "Tip: Run without -NoFix to auto-fix" -ForegroundColor Yellow
     }
 
@@ -201,29 +242,36 @@ Write-Host "Code Quality Checker" -ForegroundColor Cyan
 Write-Host ("=" * 60) -ForegroundColor Cyan
 
 # Show current mode
-if (-not $NoFix) {
+if (-not $NoFix)
+{
     Write-Host "▶ AUTO-FIX включён" -ForegroundColor Magenta
 }
-if ($NoFix) {
+if ($NoFix)
+{
     Write-Host "▶ AUTO-FIX отключён (только проверка)" -ForegroundColor DarkGray
 }
-if ($NoMypy) {
+if ($NoMypy)
+{
     Write-Host "▶ Mypy пропущен" -ForegroundColor DarkGray
 }
-if ($NoFlake8) {
+if ($NoFlake8)
+{
     Write-Host "▶ Flake8 пропущен" -ForegroundColor DarkGray
 }
 
 # Проверка существования всех переданных путей
 $allPathsExist = $true
-foreach ($p in $Paths) {
-    if (-not (Test-Path $p)) {
+foreach ($p in $Paths)
+{
+    if (-not (Test-Path $p))
+    {
         Write-ErrorMsg "Path not found: $p"
         $allPathsExist = $false
     }
 }
 
-if (-not $allPathsExist) {
+if (-not $allPathsExist)
+{
     Write-Host "Aborting due to missing paths." -ForegroundColor Red
     exit 1
 }
@@ -236,10 +284,12 @@ $Flake8Passed = $true
 $MypyPassed = $true
 
 # === Black ===
-if ($NoFix) {
+if ($NoFix)
+{
     $BlackPassed = Run-Black -Name "Black" -CommandBase "black --check"
 }
-else {
+else
+{
     $BlackPassed = Run-Black -Name "Black" -CommandBase "black"
 }
 
@@ -247,29 +297,35 @@ else {
 $IsortPassed = Run-Checker -Name "Isort" -CheckCommand "isort --check-only" -FixCommand "isort"
 
 # === Flake8 ===
-if (-not $NoFlake8) {
+if (-not $NoFlake8)
+{
     $Flake8Passed = Run-Checker -Name "Flake8" -CheckCommand "flake8"
 }
-else {
+else
+{
     Write-Host "Skipping Flake8..." -ForegroundColor DarkGray
 }
 
 # === Mypy ===
-if (-not $NoMypy) {
+if (-not $NoMypy)
+{
     $MypyPassed = Run-Checker -Name "Mypy" -CheckCommand "mypy"
 }
-else {
+else
+{
     Write-Host "Skipping Mypy..." -ForegroundColor DarkGray
 }
 
 # ====================== Итог ======================
 $allPassed = $BlackPassed -and $IsortPassed -and $Flake8Passed -and $MypyPassed
 Write-Host "`n" + ("=" * 60) -ForegroundColor Cyan
-if ($allPassed) {
+if ($allPassed)
+{
     Write-Host "✅ ALL CHECKS PASSED!" -ForegroundColor Green
     exit 0
 }
-else {
+else
+{
     Write-Host "❌ SOME CHECKS FAILED!" -ForegroundColor Red
     exit 1
 }
