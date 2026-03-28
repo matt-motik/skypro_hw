@@ -12,13 +12,7 @@ def mask_account_card(account_card_number: str) -> str:
             masked_number = get_mask_account(int(number))
         case _:
             masked_number = get_mask_card_number(int(number))
-
     return f"{number_type} {masked_number}"
-
-
-# print(mask_account_card("Visa Platinum 7000792289606361"))
-# print(mask_account_card("Maestro 7000792289606361"))
-# print(mask_account_card("Счет 73654108430135874305"))
 
 
 def get_date(date_string: str) -> str:
@@ -26,6 +20,3 @@ def get_date(date_string: str) -> str:
     и возвращает строку с датой в формате "ДД.ММ.ГГГГ" ("11.03.2024")."""
     dt = datetime.fromisoformat(date_string)
     return dt.strftime("%d.%m.%Y")
-
-
-# print(get_date("2024-03-11T02:26:18.671407"))
