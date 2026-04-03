@@ -28,4 +28,15 @@ def sort_by_date(operations: list, reverse: bool = True):
      в котором исходные словари отсортированы по дате.
      Параметр порядка сортировки функции имеет значение по умолчанию 'True'
      """
-     pass
+    if not isinstance(operations, list):
+        return []
+    return sorted(operations, key=lambda operation: operation.get('date',''), reverse=reverse)
+
+# print(sort_by_date(test_data))
+# print(sort_by_date(test_data, False))
+# test_data = [{}]
+# print(sort_by_date(test_data))
+# test_data = []
+# print(sort_by_date(test_data))
+# test_data = None
+# print(sort_by_date(test_data))
