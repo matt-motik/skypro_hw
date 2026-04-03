@@ -1,7 +1,10 @@
 def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]:
-    """Функция принимает на вход список словарей с данными о банковских операциях и параметр state,
-    возвращает новый список, содержащий только те словари, у которых ключ state содержит переданное в функцию значение.
-    Параметр state функции имеет значение по умолчанию 'EXECUTED'
+    """Фильтрует операции по значению ключа 'state'.
+    Args:
+        operations: Список словарей с банковскими операциями
+        state: Значение state для фильтрации (по умолчанию 'EXECUTED')
+    Returns:
+        Отфильтрованный список операций
     """
     if not isinstance(operations, list):
         return []
@@ -9,9 +12,12 @@ def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dic
 
 
 def sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]:
-    """Функция принимает на вход список словарей и параметр порядка сортировки, возвращает новый список,
-    в котором исходные словари отсортированы по дате.
-    Параметр порядка сортировки функции имеет значение по умолчанию 'True'
+    """Сортирует операции по дате.
+    Args:
+        operations: Список словарей с банковскими операциями
+        reverse: Направление сортировки. True - от новых к старым, False - от старых к новым (по умолчанию True)
+    Returns:
+        Отсортированный список операций
     """
     if not isinstance(operations, list):
         return []
