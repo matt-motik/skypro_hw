@@ -6,10 +6,10 @@
 
 import ast
 import re
-from pathlib import Path
-from datetime import datetime
 from collections import defaultdict
-from typing import List, Dict, Any
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List
 
 # ==================== НАСТРОЙКИ ====================
 SOURCE_DIRS = ["src"]
@@ -25,7 +25,7 @@ DOCS_OUTPUT_DIR = Path("docs/api")
 def extract_docstrings_from_file(filepath: Path) -> List[Dict[str, Any]]:
     """Извлекает docstring из одного Python файла."""
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, "r", encoding="utf-8") as f:
             content = f.read()
 
         tree = ast.parse(content)
@@ -33,47 +33,53 @@ def extract_docstrings_from_file(filepath: Path) -> List[Dict[str, Any]]:
 
         for node in ast.walk(tree):
             if isinstance(node, ast.FunctionDef):
-                if node.name.startswith('_'):
+                if node.name.startswith("_"):
                     continue
                 docstring = ast.get_docstring(node)
                 if docstring:
-                    first_line = docstring.strip().split('\n')[0]
-                    results.append({
-                        'type': 'function',
-                        'name': node.name,
-                        'summary': first_line[:150],
-                        'full_docstring': docstring,
-                        'file': filepath.name
-                    })
+                    first_line = docstring.strip().split("\n")[0]
+                    results.append(
+                        {
+                            "type": "function",
+                            "name": node.name,
+                            "summary": first_line[:150],
+                            "full_docstring": docstring,
+                            "file": filepath.name,
+                        }
+                    )
 
             elif isinstance(node, ast.ClassDef):
-                if node.name.startswith('_'):
+                if node.name.startswith("_"):
                     continue
                 docstring = ast.get_docstring(node)
                 if docstring:
-                    first_line = docstring.strip().split('\n')[0]
-                    results.append({
-                        'type': 'class',
-                        'name': node.name,
-                        'summary': first_line[:150],
-                        'full_docstring': docstring,
-                        'file': filepath.name
-                    })
+                    first_line = docstring.strip().split("\n")[0]
+                    results.append(
+                        {
+                            "type": "class",
+                            "name": node.name,
+                            "summary": first_line[:150],
+                            "full_docstring": docstring,
+                            "file": filepath.name,
+                        }
+                    )
 
                 for item in node.body:
                     if isinstance(item, ast.FunctionDef):
-                        if item.name.startswith('_'):
+                        if item.name.startswith("_"):
                             continue
                         docstring = ast.get_docstring(item)
                         if docstring:
-                            first_line = docstring.strip().split('\n')[0]
-                            results.append({
-                                'type': 'method',
-                                'name': f"{node.name}.{item.name}",
-                                'summary': first_line[:150],
-                                'full_docstring': docstring,
-                                'file': filepath.name
-                            })
+                            first_line = docstring.strip().split("\n")[0]
+                            results.append(
+                                {
+                                    "type": "method",
+                                    "name": f"{node.name}.{item.name}",
+                                    "summary": first_line[:150],
+                                    "full_docstring": docstring,
+                                    "file": filepath.name,
+                                }
+                            )
 
         return results
     except Exception as e:
@@ -88,19 +94,19 @@ def generate_api_table(all_docs: List[Dict[str, Any]]) -> str:
 
     by_file = defaultdict(list)
     for doc in all_docs:
-        by_file[doc['file']].append(doc)
+        by_file[doc["file"]].append(doc)
 
     lines = []
     for file, docs in sorted(by_file.items()):
-        base_name = file.replace('.py', '')
+        base_name = file.replace(".py", "")
         link_path = DOCS_OUTPUT_DIR / f"{base_name}.md"
-        link = str(link_path).replace('\\', '/')
+        link = str(link_path).replace("\\", "/")
 
         # Строка модуля — теперь это ссылка на файл с документацией
         lines.append(f"| [**`{file}`**]({link}) | | |")
 
         for doc in docs:
-            icon = "🔧" if doc['type'] == 'function' else "📦" if doc['type'] == 'class' else "⚙️"
+            icon = "🔧" if doc["type"] == "function" else "📦" if doc["type"] == "class" else "⚙️"
             # Оставляем якорь для GitHub
             doc_link = f"[{icon} {doc['name']}]({link}#{doc['name']})"
             lines.append(f"| | {doc_link} | {doc['summary']} |")
@@ -108,19 +114,19 @@ def generate_api_table(all_docs: List[Dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def generate_detailed_docs(all_docs: List[Dict[str, Any]]):
+def generate_detailed_docs(all_docs: List[Dict[str, Any]]) -> None:
     """Генерирует подробную документацию с HTML-якорями."""
     DOCS_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     by_file = defaultdict(list)
     for doc in all_docs:
-        by_file[doc['file']].append(doc)
+        by_file[doc["file"]].append(doc)
 
     for file, docs in by_file.items():
-        base_name = file.replace('.py', '')
+        base_name = file.replace(".py", "")
         md_file = DOCS_OUTPUT_DIR / f"{base_name}.md"
 
-        with open(md_file, 'w', encoding='utf-8') as f:
+        with open(md_file, "w", encoding="utf-8") as f:
             f.write(f"# Модуль: `{file}`\n\n")
             f.write(f"*Сгенерировано: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n\n")
             f.write("---\n\n")
@@ -134,23 +140,23 @@ def generate_detailed_docs(all_docs: List[Dict[str, Any]]):
 
                 f.write("### Полная документация\n\n")
                 f.write("```python\n")
-                f.write(doc['full_docstring'].strip())
+                f.write(doc["full_docstring"].strip())
                 f.write("\n```\n\n")
 
                 f.write("---\n\n")
 
 
-def update_readme_with_api_table(api_table: str):
+def update_readme_with_api_table(api_table: str) -> bool:
     """Обновляет README.md, вставляя таблицу между маркерами."""
     if not Path(README_FILE).exists():
         print(f"❌ Файл {README_FILE} не найден!")
         return False
 
-    with open(README_FILE, 'r', encoding='utf-8') as f:
+    with open(README_FILE, "r", encoding="utf-8") as f:
         content = f.read()
 
-    pattern = r'(<!-- СЕКЦИЯ_AUTO_API: СТАРТ -->).*?(<!-- СЕКЦИЯ_AUTO_API: КОНЕЦ -->)'
-    docs_path = str(DOCS_OUTPUT_DIR).replace('\\', '/')
+    pattern = r"(<!-- СЕКЦИЯ_AUTO_API: СТАРТ -->).*?(<!-- СЕКЦИЯ_AUTO_API: КОНЕЦ -->)"
+    docs_path = str(DOCS_OUTPUT_DIR).replace("\\", "/")
 
     new_section = f"""<!-- СЕКЦИЯ_AUTO_API: СТАРТ -->
 ### 📚 Документация API
@@ -172,13 +178,13 @@ def update_readme_with_api_table(api_table: str):
         new_content = content + "\n\n" + new_section
         print("⚠️ Маркеры не найдены, секция добавлена в конец README.md")
 
-    with open(README_FILE, 'w', encoding='utf-8') as f:
+    with open(README_FILE, "w", encoding="utf-8") as f:
         f.write(new_content)
 
     return True
 
 
-def main():
+def main() -> None:
     print("=" * 50)
     print("🔍 Генератор документации README из docstring")
     print("=" * 50)
