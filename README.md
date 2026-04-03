@@ -1,5 +1,5 @@
 # SkyPro_HW
-Учебный проект. Представляет собой частичую реализациюю некоторых банковских сервисов. (в разработке)
+Учебный проект. Представляет собой частичную реализацию некоторых банковских сервисов. (в разработке)
 
 ## Содержание
 - [Технологии](#технологии)
@@ -71,5 +71,5 @@ poetry install
 - [ ] Дооформить и сдать домашку
 
 ## Команда проекта
-- [Matvey Bakirov](mailto:mabakirov@gmail.com) — Back-End Engineer
+- Matvey Bakirov — [mabakirov@gmail.com](mailto:mabakirov@gmail.com) — Back-End Engineer
  
