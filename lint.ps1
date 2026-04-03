@@ -1,4 +1,6 @@
 ﻿<#
+.AUTHOR
+    Bakirov Matvey
 .SYNOPSIS
     Python code quality checker with auto-fix capabilities using black, isort, flake8, and mypy.
 
