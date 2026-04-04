@@ -3,11 +3,13 @@
 """Генератор документации README из docstring."""
 
 import ast
-import re
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+import re
+from typing import Any
+from typing import Dict
+from typing import List
 
 # ==================== НАСТРОЙКИ ====================
 SOURCE_DIRS = ["src"]
