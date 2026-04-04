@@ -1,8 +1,13 @@
+"""Модуль для обработки данных банковских операций."""
+
+
 def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]:
     """Фильтрует операции по значению ключа 'state'.
+
     Args:
         operations: Список словарей с банковскими операциями
         state: Значение state для фильтрации (по умолчанию 'EXECUTED')
+
     Returns:
         Отфильтрованный список операций
     """
@@ -11,9 +16,11 @@ def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dic
 
 def sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]:
     """Сортирует операции по дате.
+
     Args:
         operations: Список словарей с банковскими операциями
         reverse: Направление сортировки. True - от новых к старым, False - от старых к новым (по умолчанию True)
+
     Returns:
         Отсортированный список операций
     """

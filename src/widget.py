@@ -1,3 +1,5 @@
+"""Модуль для виджетов банковских операций."""
+
 from datetime import datetime
 
 from src.masks import get_mask_account, get_mask_card_number
@@ -5,11 +7,14 @@ from src.masks import get_mask_account, get_mask_card_number
 
 def mask_account_card(account_card_number: str) -> str:
     """Маскирует номер карты или счета в строке.
+
     Args:
         account_card_number: Строка, содержащая тип и номер карты/счета
                              (например, "Visa Platinum 1234567890123456" или "Счет 12345678901234567890")
+
     Returns:
         Замаскированная строка с скрытым номером
+
     Example:
         >>>mask_account_card("Visa Platinum 1234567890123456")
         'Visa Platinum 1234 56** **** 3456'
@@ -28,11 +33,14 @@ def mask_account_card(account_card_number: str) -> str:
 
 def get_date(date_string: str) -> str:
     """Преобразует дату из ISO формата в формат ДД.ММ.ГГГГ.
+
     Args:
         date_string: Строка с датой в формате "ГГГГ-ММ-ДДTчч:мм:сс.микросекунды"
                      (например, "2024-03-11T02:26:18.671407")
+
     Returns:
         Строка с датой в формате "ДД.ММ.ГГГГ"
+
     Example:
         >>> get_date("2024-03-11T02:26:18.671407")
         '11.03.2024'

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-Генератор документации README из docstring.
-"""
+"""Генератор документации README из docstring."""
 
 import ast
 import re
@@ -185,6 +183,7 @@ def update_readme_with_api_table(api_table: str) -> bool:
 
 
 def main() -> None:
+    """Проверяет докстринги и обновляет раздел README."""
     print("=" * 50)
     print("🔍 Генератор документации README из docstring")
     print("=" * 50)
