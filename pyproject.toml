@@ -26,8 +26,8 @@ lint = [
     "pydocstyle (>=6.3.0,<7.0.0)"
 ]
 dev = [
-    "pytest (>=9.0.3,<10.0.0)",
-    "pytest-cov (>=7.1.0,<8.0.0)"
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "pytest (>=9.0.3,<10.0.0)"
 ]
 
 # ====================== Форматтеры ======================
@@ -123,7 +123,10 @@ testpaths = ["tests"]
 # Шаблон имён тестовых файлов
 python_files = "test_*.py"
 # Автоматически запускать coverage при каждом вызове pytest
-addopts = "--cov=src --cov-report=term-missing --cov-report=html"
+#addopts = "--cov=src --cov-report=term-missing --cov-report=html"
+#addopts = "-v --cov=src --cov-report=html --cov-report=term"
+pythonpath = ["src"]
+
 
 [tool.coverage.run]
 source = ["src"]
