@@ -1,7 +1,18 @@
+"""Модуль для маскировки номеров карт и счетов."""
+
+
 def get_mask_card_number(card_number: int) -> str:
-    """
-    Функция get_mask_card_number принимает на вход номер карты в виде числа и возвращает маску номера по правилу
-    XXXX XX** **** XXXX
+    """Маскирует номер карты.
+
+    Args:
+        card_number: Номер карты (целое число)
+
+    Returns:
+        Маскированный номер карты
+
+    Example:
+        >>> get_mask_card_number(1234567890123456)
+        '1234 56** **** 3456'
     """
     if not 0 <= card_number <= 9999999999999999:
         raise ValueError("Ошибка: card_number должен принимать числовое значение от 0 до 9999999999999999.")
@@ -11,11 +22,18 @@ def get_mask_card_number(card_number: int) -> str:
 
 
 def get_mask_account(account_number: int) -> str:
-    """
-    Функция get_mask_account принимает на вход номер счета в виде числа и возвращает маску номера по правилу
-    **XXXX.
-    """
+    """Маскирует номер счета.
 
+    Args:
+        account_number: Номер счета (целое число)
+
+    Returns:
+        Маскированный номер счета в формате **XXXX
+
+    Example:
+        >>> get_mask_account(12345678901234567890)
+        '**7890'
+    """
     if not 0 <= account_number <= 99999999999999999999:
         raise ValueError("Ошибка: account_number должен принимать числовое значение от 0 до 99999999999999999999.")
 

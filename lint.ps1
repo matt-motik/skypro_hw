@@ -2,7 +2,7 @@
 .AUTHOR
     Bakirov Matvey
 .SYNOPSIS
-    Python code quality checker with auto-fix capabilities using black, isort, flake8, and mypy.
+    Python code quality checker with auto-fix capabilities using black, isort, flake8, mypy, and pydocstyle.
 
 .DESCRIPTION
     This script runs code quality tools on Python files. By default, it automatically fixes
@@ -21,16 +21,19 @@
 .PARAMETER NoFlake8
     Skip flake8 style checking.
 
+.PARAMETER NoPydocstyle
+    Skip pydocstyle docstring checking.
+
 .EXAMPLE
     .\lint.ps1
-    Runs with default settings: fixes .\src with black/isort, then checks flake8 and mypy.
+    Runs with default settings: fixes .\src with black/isort, then checks flake8, mypy, and pydocstyle.
 
 .EXAMPLE
     .\lint.ps1 .\src\main.py .\tests -NoFix
     Checks only specified paths without auto-fixing.
 
 .EXAMPLE
-    .\lint.ps1 -NoMypy -NoFlake8
+    .\lint.ps1 -NoMypy -NoFlake8 -NoPydocstyle
     Only runs black and isort (with auto-fix enabled by default).
 #>
 
@@ -40,7 +43,8 @@ param(
 
     [switch]$NoFix,
     [switch]$NoMypy,
-    [switch]$NoFlake8
+    [switch]$NoFlake8,
+    [switch]$NoPydocstyle
 )
 
 $ErrorActionPreference = "Continue"
@@ -78,17 +82,11 @@ function Run-Black
 
     Write-Step "$Name checking..." "Yellow"
 
-    # Собираем все пути в одну строку (с пробелами)
     $pathList = $Paths -join " "
-
-    # Команда
     $fullCommand = "poetry run $CommandBase $pathList"
 
     Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
-
-    # Black выводит в stderr, но мы просто выполняем команду и показываем вывод
     Invoke-Expression $fullCommand
-
     Write-Host "---------------------" -ForegroundColor DarkGray
 
     $exitCode = $LASTEXITCODE
@@ -113,6 +111,7 @@ function Run-Checker
         [string]$Name,
         [string]$CheckCommand,
         [string]$FixCommand = $null,
+        [string]$SkipSwitch = $null,
         [switch]$Skip
     )
 
@@ -133,10 +132,7 @@ function Run-Checker
 
         Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
 
-        # Для Isort в режиме автофикса: вывод в stdout, просто выполняем
-
         $output = Invoke-Expression $fullFix 2>&1
-        # Показываем захваченный вывод
         if ($output)
         {
             $output | ForEach-Object {
@@ -147,7 +143,6 @@ function Run-Checker
         {
             Write-Host "(no output)" -ForegroundColor DarkGray
         }
-
 
         Write-Host "---------------------" -ForegroundColor DarkGray
 
@@ -168,16 +163,22 @@ function Run-Checker
 
     Write-Host "`n--- $Name Output ---" -ForegroundColor DarkGray
 
-    # Для check mode нужно захватить вывод для анализа
+    # Для pydocstyle нужно передавать только директории с файлами
+    if ($Name -eq "Pydocstyle")
+    {
+        # pydocstyle работает только с .py файлами, передаём директории
+        $dirs = $Paths | Where-Object { Test-Path $_ -PathType Container }
+        if ($dirs.Count -eq 0)
+        {
+            Write-Host "No directories to check for pydocstyle" -ForegroundColor DarkGray
+            Write-Success "$Name passed"
+            return $true
+        }
+        $dirList = $dirs -join " "
+        $fullCheck = "poetry run pydocstyle $dirList"
+    }
 
-    if ($Name -eq "Isort")
-    {
-        Invoke-Expression $fullCheck
-    }
-    else
-    {
-        $output = Invoke-Expression $fullCheck 2>&1
-    }
+    $output = Invoke-Expression $fullCheck 2>&1
 
     # Показываем захваченный вывод
     if ($output)
@@ -198,26 +199,31 @@ function Run-Checker
     # Определяем наличие ошибок
     $hasIssues = $false
 
-    if ($Name -eq "Mypy")
+    switch ($Name)
     {
-        # Mypy: проверяем наличие паттернов ошибок в выводе
-        $hasIssues = ($output | Where-Object {
-            $_ -match "(?i)error:|no-untyped-def|undefined|incompatible"
-        }).Count -gt 0
-    }
-    elseif ($Name -eq "Flake8")
-    {
-        # Flake8: ненулевой exit code означает ошибки
-        $hasIssues = $exitCode -ne 0
-    }
-    elseif ($Name -eq "Isort")
-    {
-        # Isort в check mode: ненулевой exit code означает ошибки
-        $hasIssues = $exitCode -ne 0
-    }
-    else
-    {
-        $hasIssues = $exitCode -ne 0
+        "Mypy"
+        {
+            $hasIssues = ($output | Where-Object {
+                $_ -match "(?i)error:|no-untyped-def|undefined|incompatible"
+            }).Count -gt 0
+        }
+        "Flake8"
+        {
+            $hasIssues = $exitCode -ne 0
+        }
+        "Isort"
+        {
+            $hasIssues = $exitCode -ne 0
+        }
+        "Pydocstyle"
+        {
+            # pydocstyle возвращает ненулевой код при ошибках
+            $hasIssues = $exitCode -ne 0
+        }
+        default
+        {
+            $hasIssues = $exitCode -ne 0
+        }
     }
 
     if (-not $hasIssues)
@@ -260,6 +266,10 @@ if ($NoFlake8)
 {
     Write-Host "▶ Flake8 пропущен" -ForegroundColor DarkGray
 }
+if ($NoPydocstyle)
+{
+    Write-Host "▶ Pydocstyle пропущен" -ForegroundColor DarkGray
+}
 
 # Проверка существования всех переданных путей
 $allPathsExist = $true
@@ -284,6 +294,7 @@ $BlackPassed = $true
 $IsortPassed = $true
 $Flake8Passed = $true
 $MypyPassed = $true
+$PydocstylePassed = $true
 
 # === Black ===
 if ($NoFix)
@@ -299,27 +310,16 @@ else
 $IsortPassed = Run-Checker -Name "Isort" -CheckCommand "isort --check-only" -FixCommand "isort"
 
 # === Flake8 ===
-if (-not $NoFlake8)
-{
-    $Flake8Passed = Run-Checker -Name "Flake8" -CheckCommand "flake8"
-}
-else
-{
-    Write-Host "Skipping Flake8..." -ForegroundColor DarkGray
-}
+$Flake8Passed = Run-Checker -Name "Flake8" -CheckCommand "flake8" -Skip:$NoFlake8
 
 # === Mypy ===
-if (-not $NoMypy)
-{
-    $MypyPassed = Run-Checker -Name "Mypy" -CheckCommand "mypy"
-}
-else
-{
-    Write-Host "Skipping Mypy..." -ForegroundColor DarkGray
-}
+$MypyPassed = Run-Checker -Name "Mypy" -CheckCommand "mypy" -Skip:$NoMypy
+
+# === Pydocstyle ===
+$PydocstylePassed = Run-Checker -Name "Pydocstyle" -CheckCommand "pydocstyle" -Skip:$NoPydocstyle
 
 # ====================== Итог ======================
-$allPassed = $BlackPassed -and $IsortPassed -and $Flake8Passed -and $MypyPassed
+$allPassed = $BlackPassed -and $IsortPassed -and $Flake8Passed -and $MypyPassed -and $PydocstylePassed
 Write-Host "`n" + ("=" * 60) -ForegroundColor Cyan
 if ($allPassed)
 {
@@ -329,5 +329,14 @@ if ($allPassed)
 else
 {
     Write-Host "❌ SOME CHECKS FAILED!" -ForegroundColor Red
+
+    # Показываем сводку
+    Write-Host "`nSummary:" -ForegroundColor Yellow
+    if (-not $BlackPassed) { Write-Host "  ❌ Black failed" -ForegroundColor Red }
+    if (-not $IsortPassed) { Write-Host "  ❌ Isort failed" -ForegroundColor Red }
+    if (-not $Flake8Passed) { Write-Host "  ❌ Flake8 failed" -ForegroundColor Red }
+    if (-not $MypyPassed) { Write-Host "  ❌ Mypy failed" -ForegroundColor Red }
+    if (-not $PydocstylePassed) { Write-Host "  ❌ Pydocstyle failed" -ForegroundColor Red }
+
     exit 1
 }
