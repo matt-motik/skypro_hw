@@ -8,12 +8,17 @@
 - [Тестирование](#тестирование)
 - [Deploy и CI/CD](#deploy-и-cicd)
 - [Contributing](#contributing)
+- [FAQ](#faq)
 - [To do](#to-do)
 - [Команда проекта](#команда-проекта)
+
+
+<div id="технологии"></div>
 
 ## Технологии
 - [Python](https://www.python.org/)
 
+<div id="установка"></div>
 
 ## Установка
 Для управления зависимостями в проекте используется [Poetry](https://python-poetry.org).
@@ -24,6 +29,8 @@ git clone https://github.com/matt-motik/skypro_hw.git
 cd skypro_hw
 poetry install
 ```
+
+<div id="разработка"></div>
 
 ## Разработка
 <!-- СЕКЦИЯ_AUTO_API: СТАРТ -->
@@ -54,21 +61,60 @@ poetry install
 В разработке
 ### Создание билда
 В разработке
-## Тестирование
-В разработке
+
+<div id="тестирование"></div>
+
+## 🧪 Тестирование
+<!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->
+
+*Этот раздел генерируется автоматически на основании данных `poetry run pytest`.*
+
+### 📊 Результаты тестов
+
+```
+📈 Покрытие кода:
+tests\test_masks.py ..............                                       [ 25%]
+tests\test_processing.py ...............                                 [ 51%]
+tests\test_widget.py ...........................                         [100%]
+src\__init__.py         0      0   100%
+src\masks.py           14      0   100%
+src\processing.py       9      0   100%
+src\widget.py          29      0   100%
+TOTAL                  52      0   100%
+
+🎯 Результаты тестов:
+============================= test session starts =============================
+tests\test_masks.py ..............                                       [ 25%]
+tests\test_processing.py ...............                                 [ 51%]
+tests\test_widget.py ...........................                         [100%]
+=============================== tests coverage ================================
+-------------------------------------------------
+-------------------------------------------------
+============================= 56 passed in 0.09s ==============================
+```
+
+> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)
+
+
+
+<!-- СЕКЦИЯ_AUTO_TEST: КОНЕЦ -->
 ## Deploy и CI/CD
 В разработке
+
 
 ## Contributing
 В разработке — [Contributing.md](./CONTRIBUTING.md).
 
-## FAQ 
+## FAQ
 В разработке
 
 ## To do
 - [x] Добавить крутое README
 - [x] Сделать скрипт для генерации документации API на основе docstring
-- [ ] Дооформить и сдать домашку
+- [x] Написать тесты к модулям
+- [x] Доработать скрипт генерации README для testcoverage 
+- [x] Дооформить домашку
+- [ ] Сдать домашку
 
 ## Команда проекта
 - Matvey Bakirov — [mabakirov@gmail.com](mailto:mabakirov@gmail.com) — Back-End Engineer

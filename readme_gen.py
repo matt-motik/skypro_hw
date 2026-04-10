@@ -7,6 +7,7 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 import re
+import subprocess
 from typing import Any
 from typing import Dict
 from typing import List
@@ -146,6 +147,64 @@ def generate_detailed_docs(all_docs: List[Dict[str, Any]]) -> None:
                 f.write("---\n\n")
 
 
+def run_tests_and_get_results() -> str:
+    """Запускает pytest с coverage и возвращает форматированный вывод."""
+    print("\n🧪 Запуск тестов с coverage...")
+
+    try:
+        # Запускаем pytest с coverage
+        result = subprocess.run(
+            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--no-cov-on-fail"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+
+        output = result.stdout + result.stderr
+
+        # Парсим coverage summary
+        coverage_summary = ""
+        for line in output.split("\n"):
+            if "TOTAL" in line or "Coverage" in line or "%" in line:
+                coverage_summary += line + "\n"
+
+        # Форматируем вывод для Markdown
+        formatted_output = "### 📊 Результаты тестов\n\n"
+        formatted_output += "```\n"
+
+        # Добавляем основную информацию
+        if "FAILED" in output or "ERROR" in output:
+            formatted_output += "❌ Некоторые тесты не прошли!\n\n"
+
+        # Выводим summary coverage
+        if coverage_summary:
+            formatted_output += "📈 Покрытие кода:\n"
+            formatted_output += coverage_summary + "\n"
+
+        # Выводим последние строки с результатами
+        lines = output.split("\n")
+        test_lines = []
+        for line in lines[-30:]:  # Последние 30 строк
+            if any(keyword in line for keyword in ["PASSED", "FAILED", "ERROR", "test_", "===", "---"]):
+                test_lines.append(line)
+
+        if test_lines:
+            formatted_output += "🎯 Результаты тестов:\n"
+            formatted_output += "\n".join(test_lines[-20:])  # Последние 20 строк
+
+        formatted_output += "\n```\n\n"
+
+        # Добавляем ссылку на HTML отчёт
+        formatted_output += "> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)\n\n"
+
+        return formatted_output
+
+    except subprocess.CalledProcessError as e:
+        return f"```\n❌ Ошибка при запуске тестов: {e}\n```\n"
+    except FileNotFoundError:
+        return "```\n⚠️ Pytest не найден. Установите: poetry add --group dev pytest pytest-cov\n```\n"
+
+
 def update_readme_with_api_table(api_table: str) -> bool:
     """Обновляет README.md, вставляя таблицу между маркерами."""
     if not Path(README_FILE).exists():
@@ -184,12 +243,46 @@ def update_readme_with_api_table(api_table: str) -> bool:
     return True
 
 
+def update_readme_with_test_section(test_results: str) -> bool:
+    """Обновляет README.md, вставляя результаты тестов между маркерами."""
+    if not Path(README_FILE).exists():
+        print(f"❌ Файл {README_FILE} не найден!")
+        return False
+
+    with open(README_FILE, "r", encoding="utf-8") as f:
+        content = f.read()
+
+    pattern = r"(<!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->).*?(<!-- СЕКЦИЯ_AUTO_TEST: КОНЕЦ -->)"
+
+    # Используем lambda функцию для замены, чтобы re.sub не интерпретировал test_results
+    def replace_section(match: re.Match) -> str:
+        return f"""<!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->
+
+*Этот раздел генерируется автоматически на основании данных `poetry run pytest`.*
+
+{test_results}
+
+<!-- СЕКЦИЯ_AUTO_TEST: КОНЕЦ -->"""
+
+    if re.search(pattern, content, re.DOTALL):
+        new_content = re.sub(pattern, replace_section, content, flags=re.DOTALL)
+        print("✅ Обновлена существующая секция тестирования в README.md")
+        with open(README_FILE, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        return True
+    else:
+        print("⚠️ Маркеры <!-- СЕКЦИЯ_AUTO_TEST: СТАРТ/КОНЕЦ --> не найдены в README.md")
+        print("   Добавьте их вручную в раздел 'Тестирование'")
+        return False
+
+
 def main() -> None:
     """Проверяет докстринги и обновляет раздел README."""
     print("=" * 50)
     print("🔍 Генератор документации README из docstring")
     print("=" * 50)
 
+    # ===== 1. Поиск Python файлов =====
     py_files = []
 
     for source_dir in SOURCE_DIRS:
@@ -218,6 +311,7 @@ def main() -> None:
         print("❌ Нет Python файлов для обработки!")
         return
 
+    # ===== 2. Извлечение документации =====
     all_docs = []
     for py_file in py_files:
         docs = extract_docstrings_from_file(py_file)
@@ -231,15 +325,22 @@ def main() -> None:
 
     print(f"\n📊 Всего документировано: {len(all_docs)} элементов")
 
+    # ===== 3. Генерация таблицы API =====
     print("\n📝 Генерация таблицы API...")
     api_table = generate_api_table(all_docs)
 
     if update_readme_with_api_table(api_table):
-        print("✅ README.md обновлён")
+        print("✅ README.md обновлён (секция API)")
 
+    # ===== 4. Генерация детальной документации =====
     print(f"\n📚 Генерация детальной документации в {DOCS_OUTPUT_DIR}...")
     generate_detailed_docs(all_docs)
     print(f"✅ Создано {len(all_docs)} страниц документации")
+
+    # ===== 5. Запуск тестов и обновление секции =====
+    print("\n" + "=" * 50)
+    test_results = run_tests_and_get_results()
+    update_readme_with_test_section(test_results)
 
     print("\n" + "=" * 50)
     print("🎉 Готово!")
