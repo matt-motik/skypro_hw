@@ -3,12 +3,14 @@
 """Генератор документации README из docstring."""
 
 import ast
-import re
-import subprocess
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+import re
+import subprocess
+from typing import Any
+from typing import Dict
+from typing import List
 
 # ==================== НАСТРОЙКИ ====================
 SOURCE_DIRS = ["src"]
@@ -152,11 +154,7 @@ def run_tests_and_get_results() -> str:
     try:
         # Запускаем pytest с coverage
         result = subprocess.run(
-            [
-                "poetry", "run", "pytest",
-                "--cov=src", "--cov-report=term-missing",
-                "--no-cov-on-fail"
-            ],
+            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--no-cov-on-fail"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -197,7 +195,7 @@ def run_tests_and_get_results() -> str:
         formatted_output += "\n```\n\n"
 
         # Добавляем ссылку на HTML отчёт
-        formatted_output += f"> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)\n\n"
+        formatted_output += "> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)\n\n"
 
         return formatted_output
 
@@ -257,7 +255,7 @@ def update_readme_with_test_section(test_results: str) -> bool:
     pattern = r"(<!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->).*?(<!-- СЕКЦИЯ_AUTO_TEST: КОНЕЦ -->)"
 
     # Используем lambda функцию для замены, чтобы re.sub не интерпретировал test_results
-    def replace_section(match):
+    def replace_section(match: re.Match) -> str:
         return f"""<!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->
 
 *Этот раздел генерируется автоматически на основании данных `poetry run pytest`.*
