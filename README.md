@@ -3,17 +3,22 @@
 
 ## Содержание
 - [Технологии](#технологии)
-- [Установка](#Установка)
+- [Установка](#установка)
 - [Разработка](#разработка)
 - [Тестирование](#тестирование)
 - [Deploy и CI/CD](#deploy-и-cicd)
 - [Contributing](#contributing)
+- [FAQ](#faq)
 - [To do](#to-do)
 - [Команда проекта](#команда-проекта)
+
+
+<div id="технологии"></div>
 
 ## Технологии
 - [Python](https://www.python.org/)
 
+<div id="установка"></div>
 
 ## Установка
 Для управления зависимостями в проекте используется [Poetry](https://python-poetry.org).
@@ -24,6 +29,8 @@ git clone https://github.com/matt-motik/skypro_hw.git
 cd skypro_hw
 poetry install
 ```
+
+<div id="разработка"></div>
 
 ## Разработка
 <!-- СЕКЦИЯ_AUTO_API: СТАРТ -->
@@ -54,6 +61,9 @@ poetry install
 В разработке
 ### Создание билда
 В разработке
+
+<div id="тестирование"></div>
+
 ## 🧪 Тестирование
 <!-- СЕКЦИЯ_AUTO_TEST: СТАРТ -->
 
@@ -95,7 +105,7 @@ tests\test_widget.py ...........................                         [100%]
 ## Contributing
 В разработке — [Contributing.md](./CONTRIBUTING.md).
 
-## FAQ 
+## FAQ
 В разработке
 
 ## To do
