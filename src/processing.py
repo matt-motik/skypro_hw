@@ -1,5 +1,7 @@
 """Модуль для обработки данных банковских операций."""
 
+ERROR_MSG_INVALID_TYPE = "Ошибка: operations должен быть cписком словарей с банковскими операциями."
+
 
 def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dict]:
     """Фильтрует операции по значению ключа 'state'.
@@ -11,6 +13,8 @@ def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dic
     Returns:
         Отфильтрованный список операций
     """
+    if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
+        raise TypeError(ERROR_MSG_INVALID_TYPE)
     return [operation for operation in operations if operation.get("state") == state]
 
 
@@ -24,4 +28,6 @@ def sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]:
     Returns:
         Отсортированный список операций
     """
+    if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
+        raise TypeError(ERROR_MSG_INVALID_TYPE)
     return sorted(operations, key=lambda operation: operation.get("date", ""), reverse=reverse)
