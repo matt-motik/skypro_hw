@@ -111,8 +111,10 @@ tests\test_widget.py ...........................                         [100%]
 ## To do
 - [x] Добавить крутое README
 - [x] Сделать скрипт для генерации документации API на основе docstring
+- [x] Написать тесты к модулям
 - [x] Доработать скрипт генерации README для testcoverage 
-- [ ] Дооформить и сдать домашку
+- [x] Дооформить домашку
+- [ ] Сдать домашку
 
 ## Команда проекта
 - Matvey Bakirov — [mabakirov@gmail.com](mailto:mabakirov@gmail.com) — Back-End Engineer
