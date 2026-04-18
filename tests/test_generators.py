@@ -1,6 +1,8 @@
 import pytest
 
-from generators import ERROR_MSG_INVALID_TYPE, ERROR_MSG_INVALID_CURRENCY_TYPE
+from generators import ERROR_MSG_INVALID_CURRENCY_TYPE, card_number_generator, ERROR_MSG_INVALID_STOP_TYPE, \
+    ERROR_MSG_INVALID_START_TYPE, ERROR_MSG_INVALID_START_STOP_VALUE
+from generators import ERROR_MSG_INVALID_TYPE
 from generators import filter_by_currency
 from generators import transaction_descriptions
 
@@ -79,10 +81,12 @@ def test_filter_by_currency_type_error():
         assert filter_by_currency(123, "RUB")
     assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
 
+
 def test_filter_by_currency_currency_type_error(transactions):
     with pytest.raises(TypeError) as exc_info:
         assert filter_by_currency(transactions, 111)
     assert str(exc_info.value) == ERROR_MSG_INVALID_CURRENCY_TYPE
+
 
 def test_filter_by_currency_btc(transactions):
     gen = filter_by_currency(transactions, "BTC")
@@ -129,6 +133,8 @@ def transactions_with_invalid_data() -> list[dict]:
         {"id": 2},
         {"id": 3, "description": None},
     ]
+
+
 def test_transaction_descriptions_missing_description(transactions_with_invalid_data):
     gen = transaction_descriptions(transactions_with_invalid_data)
     assert next(gen) == "Есть описание"
@@ -136,3 +142,48 @@ def test_transaction_descriptions_missing_description(transactions_with_invalid_
     assert next(gen) == "Описание отсутствует"
     with pytest.raises(StopIteration):
         next(gen)
+
+
+@pytest.fixture()
+def card_numbers() -> list[str]:
+    return [
+        "0000 0000 0000 0001",
+        "0000 0000 0000 0002",
+        "0000 0000 0000 0003",
+        "0000 0000 0000 0004",
+        "0000 0000 0000 0005"
+    ]
+
+
+def test_card_number_generator(card_numbers):
+    gen = card_number_generator(1, 5)
+    assert list(gen) == card_numbers
+
+
+def test_card_number_generator_start_type_error():
+    gen = card_number_generator("123", 200)
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_START_TYPE
+
+
+def test_card_number_generator_stop_type_error():
+    gen = card_number_generator(1, "200")
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_STOP_TYPE
+
+
+@pytest.mark.parametrize(
+    "start, stop",
+    [
+        (0, 1),
+        (2, 1),
+        (12, 10000000000000000)
+    ]
+)
+def test_card_number_generator_start_stop_value_error(start, stop):
+    gen = card_number_generator(start, stop)
+    with pytest.raises(ValueError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_START_STOP_VALUE
