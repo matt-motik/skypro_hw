@@ -22,14 +22,17 @@ def filter_by_currency(transactions: list[dict], currency: str = "USD") -> Itera
     Example:
         >>> usd_transactions = filter_by_currency(transactions, "USD")
         >>> for _ in range(2):
-        ...     print(next(usd_transactions))
+        ...     print(next(usd_transactions)["id"])
+        ...
+        939719570
+        142264268
     """
     if not isinstance(transactions, list):
         raise TypeError(ERROR_MSG_INVALID_TYPE)
     if not isinstance(currency, str):
         raise TypeError(ERROR_MSG_INVALID_CURRENCY_TYPE)
 
-    def check_currency(transaction: dict) -> bool:
+    def _check_currency(transaction: dict) -> bool:
         """Проверяет, соответствует ли валюта транзакции заданной."""
         try:
             return bool(transaction["operationAmount"]["currency"]["code"] == currency)
@@ -37,7 +40,7 @@ def filter_by_currency(transactions: list[dict], currency: str = "USD") -> Itera
             # Пропускаем транзакции с некорректной структурой
             return False
 
-    return filter(check_currency, transactions)
+    return filter(_check_currency, transactions)
 
 
 def transaction_descriptions(transactions: list[dict]) -> Iterator[str]:
@@ -50,10 +53,15 @@ def transaction_descriptions(transactions: list[dict]) -> Iterator[str]:
         Генератор с описаниями транзакций
 
     Example:
-         >>> descriptions = transaction_descriptions(transactions)
-         >>> for _ in range(5):
-         ...     print(next(descriptions))
-         >>> Перевод организации
+        >>> descriptions = transaction_descriptions(transactions)
+        >>> for _ in range(5):
+        ...     print(next(descriptions))
+        ...
+        Перевод организации
+        Перевод со счета на счет
+        Перевод со счета на счет
+        Перевод с карты на карту
+        Перевод организации
     """
     if not isinstance(transactions, list):
         raise TypeError(ERROR_MSG_INVALID_TYPE)
@@ -72,17 +80,17 @@ def card_number_generator(start_num: int = 1, stop_num: int = 9999999999999999) 
         stop_num: Конечный номер генерации карт
 
     Returns:
-        Генератор номеров в Диапазое от 0000 0000 0000 0001 до 9999 9999 9999 9999.
+        Генератор номеров в диапазоне от 0000 0000 0000 0001 до 9999 9999 9999 9999.
 
     Example:
         >>> for card_number in card_number_generator(1, 5):
-        >>>     print(card_number)
-        ...
-        >>> 0000 0000 0000 0o001
-        >>> 0000 0000 0000 0o002
-        >>> 0000 0000 0000 0o003
-        >>> 0000 0000 0000 0o004
-        >>> 0000 0000 0000 0o005
+        ...     print(card_number)
+
+        0000 0000 0000 0001
+        0000 0000 0000 0002
+        0000 0000 0000 0003
+        0000 0000 0000 0004
+        0000 0000 0000 0005
     """
     if not isinstance(start_num, int):
         raise TypeError(ERROR_MSG_INVALID_START_TYPE)
