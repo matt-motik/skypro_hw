@@ -4,6 +4,9 @@ from typing import Iterator
 
 ERROR_MSG_INVALID_TYPE = "Ошибка: transactions должен быть cписком словарей с банковскими операциями."
 ERROR_MSG_INVALID_CURRENCY_TYPE = "Ошибка: currency должен строкой."
+ERROR_MSG_INVALID_START_TYPE = "Ошибка: start_num должен int."
+ERROR_MSG_INVALID_STOP_TYPE = "Ошибка: stop_num должен int."
+ERROR_MSG_INVALID_START_STOP_VALUE = "Ошибка: 1 <= start_num <= stop_num <= 9999999999999999"
 
 
 def filter_by_currency(transactions: list[dict], currency: str = "USD") -> Iterator[dict]:
@@ -61,8 +64,34 @@ def transaction_descriptions(transactions: list[dict]) -> Iterator[str]:
         yield transaction.get("description") or "Описание отсутствует"
 
 
+def card_number_generator(start_num: int = 1, stop_num: int = 9999999999999999) -> Iterator[str]:
+    """Генератор выдает номера банковских карт в формате XXXX XXXX XXXX XXXX, где Х — цифра номера карты.
 
-def card_number_generator() -> Iterator[dict]:
-    pass
+    Args:
+        start_num: Начальный номер генерации карт
+        stop_num: Конечный номер генерации карт
 
+    Returns:
+        Генератор номеров в Диапазое от 0000 0000 0000 0001 до 9999 9999 9999 9999.
 
+    Example:
+        >>> for card_number in card_number_generator(1, 5):
+        >>>     print(card_number)
+        ...
+        >>> 0000 0000 0000 0o001
+        >>> 0000 0000 0000 0o002
+        >>> 0000 0000 0000 0o003
+        >>> 0000 0000 0000 0o004
+        >>> 0000 0000 0000 0o005
+    """
+    if not isinstance(start_num, int):
+        raise TypeError(ERROR_MSG_INVALID_START_TYPE)
+    if not isinstance(stop_num, int):
+        raise TypeError(ERROR_MSG_INVALID_STOP_TYPE)
+    if not 1 <= start_num <= stop_num <= 9999999999999999:
+        raise ValueError(ERROR_MSG_INVALID_START_STOP_VALUE)
+
+    for num in range(start_num, stop_num + 1):
+        num_str = str(num).zfill(16)
+        number_str = f"{num_str[:4]} {num_str[4:8]} {num_str[8:12]} {num_str[12:]}"
+        yield number_str
