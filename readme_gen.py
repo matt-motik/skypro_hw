@@ -154,7 +154,7 @@ def run_tests_and_get_results() -> str:
     try:
         # Запускаем pytest с coverage
         result = subprocess.run(
-            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--no-cov-on-fail"],
+            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--cov-report=html"],
             capture_output=True,
             text=True,
             encoding="utf-8",
