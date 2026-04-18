@@ -1,7 +1,8 @@
 import pytest
 
-from generators import ERROR_MSG_INVALID_TYPE
+from generators import ERROR_MSG_INVALID_TYPE, ERROR_MSG_INVALID_CURRENCY_TYPE
 from generators import filter_by_currency
+from generators import transaction_descriptions
 
 
 @pytest.fixture()
@@ -62,6 +63,11 @@ def test_filter_by_currency_usd(transactions):
     assert next(gen) == transactions[3]
 
 
+def test_filter_by_currency_usd_default(transactions):
+    gen = filter_by_currency(transactions)
+    assert next(gen) == transactions[0]
+
+
 def test_filter_by_currency_rub(transactions):
     gen = filter_by_currency(transactions, "RUB")
     assert next(gen) == transactions[2]
@@ -73,6 +79,10 @@ def test_filter_by_currency_type_error():
         assert filter_by_currency(123, "RUB")
     assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
 
+def test_filter_by_currency_currency_type_error(transactions):
+    with pytest.raises(TypeError) as exc_info:
+        assert filter_by_currency(transactions, 111)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_CURRENCY_TYPE
 
 def test_filter_by_currency_btc(transactions):
     gen = filter_by_currency(transactions, "BTC")
@@ -80,11 +90,49 @@ def test_filter_by_currency_btc(transactions):
         assert next(gen)
 
 
-def test_filter_by_currency_broken_transaction(transactions):
-    bad_transactions = transactions.copy()
-    bad_transactions.append({"id": 999, "operationAmount": "invalid"})
-    bad_transactions.append("not a dict")
-    bad_transactions.append(None)
-    gen = filter_by_currency(transactions, "RUB")
-    assert next(gen) == transactions[2]
-    assert next(gen) == transactions[4]
+def test_filter_by_currency_missing_keys():
+    """Транзакция без вложенных ключей"""
+    bad_transactions = [
+        {"id": 1},
+        {"id": 2, "operationAmount": {}},
+        {"id": 3, "operationAmount": {"currency": {}}},
+    ]
+    gen = filter_by_currency(bad_transactions, "USD")
+    with pytest.raises(StopIteration):
+        next(gen)
+
+
+def test_transaction_descriptions(transactions):
+    descriptions = transaction_descriptions(transactions)
+    assert next(descriptions) == transactions[0]["description"]
+    assert next(descriptions) == transactions[1]["description"]
+    assert next(descriptions) == transactions[2]["description"]
+    assert next(descriptions) == transactions[3]["description"]
+    assert next(descriptions) == transactions[4]["description"]
+
+    with pytest.raises(StopIteration):
+        assert next(descriptions)
+
+
+def test_transaction_descriptions_type_error():
+    gen = transaction_descriptions(123)
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
+
+
+@pytest.fixture()
+def transactions_with_invalid_data() -> list[dict]:
+    return [
+        {"id": 1, "description": "Есть описание"},
+        1243,
+        {"id": 2},
+        {"id": 3, "description": None},
+    ]
+def test_transaction_descriptions_missing_description(transactions_with_invalid_data):
+    gen = transaction_descriptions(transactions_with_invalid_data)
+    assert next(gen) == "Есть описание"
+    assert next(gen) == "Описание отсутствует"
+    assert next(gen) == "Описание отсутствует"
+    with pytest.raises(StopIteration):
+        next(gen)
