@@ -1,8 +1,11 @@
 import pytest
 
-from generators import ERROR_MSG_INVALID_CURRENCY_TYPE, card_number_generator, ERROR_MSG_INVALID_STOP_TYPE, \
-    ERROR_MSG_INVALID_START_TYPE, ERROR_MSG_INVALID_START_STOP_VALUE
+from generators import ERROR_MSG_INVALID_CURRENCY_TYPE
+from generators import ERROR_MSG_INVALID_START_STOP_VALUE
+from generators import ERROR_MSG_INVALID_START_TYPE
+from generators import ERROR_MSG_INVALID_STOP_TYPE
 from generators import ERROR_MSG_INVALID_TYPE
+from generators import card_number_generator
 from generators import filter_by_currency
 from generators import transaction_descriptions
 
@@ -58,6 +61,11 @@ def transactions() -> list[dict]:
     ]
 
 
+@pytest.fixture()
+def transactions_empty() -> list[dict]:
+    return []
+
+
 def test_filter_by_currency_usd(transactions):
     gen = filter_by_currency(transactions, "USD")
     assert next(gen) == transactions[0]
@@ -88,22 +96,37 @@ def test_filter_by_currency_currency_type_error(transactions):
     assert str(exc_info.value) == ERROR_MSG_INVALID_CURRENCY_TYPE
 
 
-def test_filter_by_currency_btc(transactions):
-    gen = filter_by_currency(transactions, "BTC")
-    with pytest.raises(StopIteration):
-        assert next(gen)
+def test_filter_by_currency_empty_list(transactions_empty):
+    gen = filter_by_currency(transactions_empty, "USD")
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения, но вернул {value}")
 
 
-def test_filter_by_currency_missing_keys():
-    """Транзакция без вложенных ключей"""
-    bad_transactions = [
+def test_filter_by_currency_no_matching_currency(transactions):
+    gen = filter_by_currency(transactions, "EUR")
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для EUR, но вернул {value}")
+
+
+@pytest.fixture()
+def bad_transactions() -> list[dict]:
+    return [
         {"id": 1},
         {"id": 2, "operationAmount": {}},
         {"id": 3, "operationAmount": {"currency": {}}},
     ]
+
+
+def test_filter_by_currency_missing_keys(bad_transactions):
     gen = filter_by_currency(bad_transactions, "USD")
-    with pytest.raises(StopIteration):
-        next(gen)
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для USD, но вернул {value}")
+
+
+def test_transaction_descriptions_empty_list(transactions_empty):
+    gen = transaction_descriptions(transactions_empty)
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для USD, но вернул {value}")
 
 
 def test_transaction_descriptions(transactions):
@@ -151,13 +174,29 @@ def card_numbers() -> list[str]:
         "0000 0000 0000 0002",
         "0000 0000 0000 0003",
         "0000 0000 0000 0004",
-        "0000 0000 0000 0005"
+        "0000 0000 0000 0005",
     ]
 
 
 def test_card_number_generator(card_numbers):
     gen = card_number_generator(1, 5)
     assert list(gen) == card_numbers
+
+
+@pytest.fixture()
+def big_card_numbers() -> list[str]:
+    return [
+        "9999 9999 9999 9995",
+        "9999 9999 9999 9996",
+        "9999 9999 9999 9997",
+        "9999 9999 9999 9998",
+        "9999 9999 9999 9999",
+    ]
+
+
+def test_edge_large_numbers(big_card_numbers):
+    gen = card_number_generator(9999999999999995, 9999999999999999)
+    assert list(gen) == big_card_numbers
 
 
 def test_card_number_generator_start_type_error():
@@ -174,14 +213,7 @@ def test_card_number_generator_stop_type_error():
     assert str(exc_info.value) == ERROR_MSG_INVALID_STOP_TYPE
 
 
-@pytest.mark.parametrize(
-    "start, stop",
-    [
-        (0, 1),
-        (2, 1),
-        (12, 10000000000000000)
-    ]
-)
+@pytest.mark.parametrize("start, stop", [(0, 1), (2, 1), (12, 10000000000000000)])
 def test_card_number_generator_start_stop_value_error(start, stop):
     gen = card_number_generator(start, stop)
     with pytest.raises(ValueError) as exc_info:
