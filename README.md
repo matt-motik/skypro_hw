@@ -40,6 +40,10 @@ poetry install
 
 | Модуль | Функция/Класс | Краткое описание |
 |--------|---------------|------------------|
+| [**`generators.py`**](docs/api/generators.md) | | |
+| | [🔧 filter_by_currency](docs/api/generators.md#filter_by_currency) | Фильтрует транзакции по значению ключа 'currency'. |
+| | [🔧 transaction_descriptions](docs/api/generators.md#transaction_descriptions) | Возвращает описание каждой операции по очереди. |
+| | [🔧 card_number_generator](docs/api/generators.md#card_number_generator) | Генератор выдает номера банковских карт в формате XXXX XXXX XXXX XXXX, где Х — цифра номера карты. |
 | [**`masks.py`**](docs/api/masks.md) | | |
 | | [🔧 get_mask_card_number](docs/api/masks.md#get_mask_card_number) | Маскирует номер карты. |
 | | [🔧 get_mask_account](docs/api/masks.md#get_mask_account) | Маскирует номер счета. |
@@ -73,24 +77,28 @@ poetry install
 
 ```
 📈 Покрытие кода:
-tests\test_masks.py ..............                                       [ 25%]
-tests\test_processing.py ...............                                 [ 51%]
-tests\test_widget.py ...........................                         [100%]
-src\__init__.py         0      0   100%
-src\masks.py           14      0   100%
-src\processing.py       9      0   100%
-src\widget.py          29      0   100%
-TOTAL                  52      0   100%
+tests/test_generators.py ...................                             [ 25%]
+tests/test_masks.py ..............                                       [ 44%]
+tests/test_processing.py ...............                                 [ 64%]
+tests/test_widget.py ...........................                         [100%]
+src/__init__.py         0      0   100%
+src/generators.py      35      0   100%
+src/masks.py           14      0   100%
+src/processing.py       9      0   100%
+src/widget.py          29      0   100%
+TOTAL                  87      0   100%
+Coverage HTML written to dir htmlcov
 
 🎯 Результаты тестов:
-============================= test session starts =============================
-tests\test_masks.py ..............                                       [ 25%]
-tests\test_processing.py ...............                                 [ 51%]
-tests\test_widget.py ...........................                         [100%]
-=============================== tests coverage ================================
+============================= test session starts ==============================
+tests/test_generators.py ...................                             [ 25%]
+tests/test_masks.py ..............                                       [ 44%]
+tests/test_processing.py ...............                                 [ 64%]
+tests/test_widget.py ...........................                         [100%]
+================================ tests coverage ================================
 -------------------------------------------------
 -------------------------------------------------
-============================= 56 passed in 0.09s ==============================
+============================== 75 passed in 0.09s ==============================
 ```
 
 > 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)
@@ -113,6 +121,7 @@ tests\test_widget.py ...........................                         [100%]
 - [x] Сделать скрипт для генерации документации API на основе docstring
 - [x] Написать тесты к модулям
 - [x] Доработать скрипт генерации README для testcoverage 
+- [x] Написать generators.py и test_generators.py
 - [x] Дооформить домашку
 - [ ] Сдать домашку
 

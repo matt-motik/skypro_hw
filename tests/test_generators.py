@@ -1,0 +1,221 @@
+import pytest
+
+from generators import ERROR_MSG_INVALID_CURRENCY_TYPE
+from generators import ERROR_MSG_INVALID_START_STOP_VALUE
+from generators import ERROR_MSG_INVALID_START_TYPE
+from generators import ERROR_MSG_INVALID_STOP_TYPE
+from generators import ERROR_MSG_INVALID_TYPE
+from generators import card_number_generator
+from generators import filter_by_currency
+from generators import transaction_descriptions
+
+
+@pytest.fixture()
+def transactions() -> list[dict]:
+    return [
+        {
+            "id": 939719570,
+            "state": "EXECUTED",
+            "date": "2018-06-30T02:08:58.425572",
+            "operationAmount": {"amount": "9824.07", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод организации",
+            "from": "Счет 75106830613657916952",
+            "to": "Счет 11776614605963066702",
+        },
+        {
+            "id": 142264268,
+            "state": "EXECUTED",
+            "date": "2019-04-04T23:20:05.206878",
+            "operationAmount": {"amount": "79114.93", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод со счета на счет",
+            "from": "Счет 19708645243227258542",
+            "to": "Счет 75651667383060284188",
+        },
+        {
+            "id": 873106923,
+            "state": "EXECUTED",
+            "date": "2019-03-23T01:09:46.296404",
+            "operationAmount": {"amount": "43318.34", "currency": {"name": "руб.", "code": "RUB"}},
+            "description": "Перевод со счета на счет",
+            "from": "Счет 44812258784861134719",
+            "to": "Счет 74489636417521191160",
+        },
+        {
+            "id": 895315941,
+            "state": "EXECUTED",
+            "date": "2018-08-19T04:27:37.904916",
+            "operationAmount": {"amount": "56883.54", "currency": {"name": "USD", "code": "USD"}},
+            "description": "Перевод с карты на карту",
+            "from": "Visa Classic 6831982476737658",
+            "to": "Visa Platinum 8990922113665229",
+        },
+        {
+            "id": 594226727,
+            "state": "CANCELED",
+            "date": "2018-09-12T21:27:25.241689",
+            "operationAmount": {"amount": "67314.70", "currency": {"name": "руб.", "code": "RUB"}},
+            "description": "Перевод организации",
+            "from": "Visa Platinum 1246377376343588",
+            "to": "Счет 14211924144426031657",
+        },
+    ]
+
+
+@pytest.fixture()
+def transactions_empty() -> list[dict]:
+    return []
+
+
+def test_filter_by_currency_usd(transactions):
+    gen = filter_by_currency(transactions, "USD")
+    assert next(gen) == transactions[0]
+    assert next(gen) == transactions[1]
+    assert next(gen) == transactions[3]
+
+
+def test_filter_by_currency_usd_default(transactions):
+    gen = filter_by_currency(transactions)
+    assert next(gen) == transactions[0]
+
+
+def test_filter_by_currency_rub(transactions):
+    gen = filter_by_currency(transactions, "RUB")
+    assert next(gen) == transactions[2]
+    assert next(gen) == transactions[4]
+
+
+def test_filter_by_currency_type_error():
+    with pytest.raises(TypeError) as exc_info:
+        assert filter_by_currency(123, "RUB")
+    assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
+
+
+def test_filter_by_currency_currency_type_error(transactions):
+    with pytest.raises(TypeError) as exc_info:
+        assert filter_by_currency(transactions, 111)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_CURRENCY_TYPE
+
+
+def test_filter_by_currency_empty_list(transactions_empty):
+    gen = filter_by_currency(transactions_empty, "USD")
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения, но вернул {value}")
+
+
+def test_filter_by_currency_no_matching_currency(transactions):
+    gen = filter_by_currency(transactions, "EUR")
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для EUR, но вернул {value}")
+
+
+@pytest.fixture()
+def bad_transactions() -> list[dict]:
+    return [
+        {"id": 1},
+        {"id": 2, "operationAmount": {}},
+        {"id": 3, "operationAmount": {"currency": {}}},
+    ]
+
+
+def test_filter_by_currency_missing_keys(bad_transactions):
+    gen = filter_by_currency(bad_transactions, "USD")
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для USD, но вернул {value}")
+
+
+def test_transaction_descriptions_empty_list(transactions_empty):
+    gen = transaction_descriptions(transactions_empty)
+    for value in gen:
+        pytest.fail(f"Генератор не должен возвращать значения для USD, но вернул {value}")
+
+
+def test_transaction_descriptions(transactions):
+    descriptions = transaction_descriptions(transactions)
+    assert next(descriptions) == transactions[0]["description"]
+    assert next(descriptions) == transactions[1]["description"]
+    assert next(descriptions) == transactions[2]["description"]
+    assert next(descriptions) == transactions[3]["description"]
+    assert next(descriptions) == transactions[4]["description"]
+
+    with pytest.raises(StopIteration):
+        assert next(descriptions)
+
+
+def test_transaction_descriptions_type_error():
+    gen = transaction_descriptions(123)
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
+
+
+@pytest.fixture()
+def transactions_with_invalid_data() -> list[dict]:
+    return [
+        {"id": 1, "description": "Есть описание"},
+        1243,
+        {"id": 2},
+        {"id": 3, "description": None},
+    ]
+
+
+def test_transaction_descriptions_missing_description(transactions_with_invalid_data):
+    gen = transaction_descriptions(transactions_with_invalid_data)
+    assert next(gen) == "Есть описание"
+    assert next(gen) == "Описание отсутствует"
+    assert next(gen) == "Описание отсутствует"
+    with pytest.raises(StopIteration):
+        next(gen)
+
+
+@pytest.fixture()
+def card_numbers() -> list[str]:
+    return [
+        "0000 0000 0000 0001",
+        "0000 0000 0000 0002",
+        "0000 0000 0000 0003",
+        "0000 0000 0000 0004",
+        "0000 0000 0000 0005",
+    ]
+
+
+def test_card_number_generator(card_numbers):
+    gen = card_number_generator(1, 5)
+    assert list(gen) == card_numbers
+
+
+@pytest.fixture()
+def big_card_numbers() -> list[str]:
+    return [
+        "9999 9999 9999 9995",
+        "9999 9999 9999 9996",
+        "9999 9999 9999 9997",
+        "9999 9999 9999 9998",
+        "9999 9999 9999 9999",
+    ]
+
+
+def test_edge_large_numbers(big_card_numbers):
+    gen = card_number_generator(9999999999999995, 9999999999999999)
+    assert list(gen) == big_card_numbers
+
+
+def test_card_number_generator_start_type_error():
+    gen = card_number_generator("123", 200)
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_START_TYPE
+
+
+def test_card_number_generator_stop_type_error():
+    gen = card_number_generator(1, "200")
+    with pytest.raises(TypeError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_STOP_TYPE
+
+
+@pytest.mark.parametrize("start, stop", [(0, 1), (2, 1), (12, 10000000000000000)])
+def test_card_number_generator_start_stop_value_error(start, stop):
+    gen = card_number_generator(start, stop)
+    with pytest.raises(ValueError) as exc_info:
+        next(gen)
+    assert str(exc_info.value) == ERROR_MSG_INVALID_START_STOP_VALUE
