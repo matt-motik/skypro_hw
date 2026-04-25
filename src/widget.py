@@ -2,6 +2,7 @@
 
 from datetime import datetime
 
+from src.decorators import log
 from src.masks import get_mask_account
 from src.masks import get_mask_card_number
 
@@ -12,6 +13,7 @@ ERROR_MSG_INVALID_FORMAT = (
 ERROR_MSG_INVALID_DATE_FORMAT = "Ошибка: date_string должна быть ISO формата вида '2024-03-11T02:26:18.671407'."
 
 
+@log("logs/app.log")
 def mask_account_card(account_card_number: str) -> str:
     """Маскирует номер карты или счета в строке.
 
@@ -47,7 +49,7 @@ def mask_account_card(account_card_number: str) -> str:
             masked_number = get_mask_card_number(int(number_str))
     return f"{number_type} {masked_number}"
 
-
+@log("logs/app.log")
 def get_date(date_string: str) -> str:
     """Преобразует дату из ISO формата в формат ДД.ММ.ГГГГ.
 
