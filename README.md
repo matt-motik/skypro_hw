@@ -40,6 +40,10 @@ poetry install
 
 | Модуль | Функция/Класс | Краткое описание |
 |--------|---------------|------------------|
+| [**`decorators.py`**](docs/api/decorators.md) | | |
+| | [🔧 log](docs/api/decorators.md#log) | Декоратор для логирования вызовов функций. |
+| | [🔧 decorator](docs/api/decorators.md#decorator) | Декоратор для обёртки функции. |
+| | [🔧 wrapper](docs/api/decorators.md#wrapper) | Обёртка, выполняющая логирование. |
 | [**`generators.py`**](docs/api/generators.md) | | |
 | | [🔧 filter_by_currency](docs/api/generators.md#filter_by_currency) | Фильтрует транзакции по значению ключа 'currency'. |
 | | [🔧 transaction_descriptions](docs/api/generators.md#transaction_descriptions) | Возвращает описание каждой операции по очереди. |
@@ -77,28 +81,31 @@ poetry install
 
 ```
 📈 Покрытие кода:
-tests/test_generators.py ...................                             [ 25%]
-tests/test_masks.py ..............                                       [ 44%]
-tests/test_processing.py ...............                                 [ 64%]
+tests/test_decorators.py ....                                            [  5%]
+tests/test_generators.py ...................                             [ 29%]
+tests/test_masks.py ..............                                       [ 46%]
+tests/test_processing.py ...............                                 [ 65%]
 tests/test_widget.py ...........................                         [100%]
 src/__init__.py         0      0   100%
+src/decorators.py      37      0   100%
 src/generators.py      35      0   100%
 src/masks.py           14      0   100%
 src/processing.py       9      0   100%
-src/widget.py          29      0   100%
-TOTAL                  87      0   100%
+src/widget.py          32      0   100%
+TOTAL                 127      0   100%
 Coverage HTML written to dir htmlcov
 
 🎯 Результаты тестов:
 ============================= test session starts ==============================
-tests/test_generators.py ...................                             [ 25%]
-tests/test_masks.py ..............                                       [ 44%]
-tests/test_processing.py ...............                                 [ 64%]
+tests/test_decorators.py ....                                            [  5%]
+tests/test_generators.py ...................                             [ 29%]
+tests/test_masks.py ..............                                       [ 46%]
+tests/test_processing.py ...............                                 [ 65%]
 tests/test_widget.py ...........................                         [100%]
 ================================ tests coverage ================================
 -------------------------------------------------
 -------------------------------------------------
-============================== 75 passed in 0.09s ==============================
+============================== 79 passed in 0.10s ==============================
 ```
 
 > 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)
@@ -122,8 +129,8 @@ tests/test_widget.py ...........................                         [100%]
 - [x] Написать тесты к модулям
 - [x] Доработать скрипт генерации README для testcoverage 
 - [x] Написать generators.py и test_generators.py
-- [x] Дооформить домашку
-- [ ] Сдать домашку
+- [x] Написать decorators.py и test_decorators.py
+- [x] Обновить документацию
 
 ## Команда проекта
 - Matvey Bakirov — [mabakirov@gmail.com](mailto:mabakirov@gmail.com) — Back-End Engineer
