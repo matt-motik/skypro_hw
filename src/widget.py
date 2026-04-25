@@ -49,6 +49,7 @@ def mask_account_card(account_card_number: str) -> str:
             masked_number = get_mask_card_number(int(number_str))
     return f"{number_type} {masked_number}"
 
+
 @log("logs/app.log")
 def get_date(date_string: str) -> str:
     """Преобразует дату из ISO формата в формат ДД.ММ.ГГГГ.
