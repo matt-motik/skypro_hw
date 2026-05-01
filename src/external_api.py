@@ -31,7 +31,7 @@ def convert_currency(amount: float, from_currency: str, to_currency: str = "RUB"
     headers = {"apikey": api_key}
 
     try:
-        response = requests.request("GET", url, headers=headers, data=payload)
+        response = requests.get(url, headers=headers, data=payload)
     except RequestException as err:
         raise RequestException(f"Ошибка запроса: {err}")
 
@@ -56,4 +56,3 @@ def convert_currency(amount: float, from_currency: str, to_currency: str = "RUB"
                 raise RuntimeError("Внутрення ошибка сервера конвертации валюты")
             else:
                 raise RuntimeError(f"Ошибка конвертации валюты: статус {response.status_code}")
-
