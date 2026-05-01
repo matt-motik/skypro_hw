@@ -18,7 +18,7 @@ def read_json_file(filename: str) -> list:
         Если JSON-файл пустой, содержит не-список или не найден, возвращается пустой список.
 
     Example:
-        transactions = read_json_file("data/operations.json")
+        >>>transactions = read_json_file("data/operations.json")
     """
     if filename:
         if os.path.exists(filename):
