@@ -29,7 +29,7 @@ def read_json_file(filename: str) -> list:
                     print("Error: Invalid JSON data. Return []")
                     return []
                 if isinstance(transactions, list):
-                    return list(transactions)
+                    return transactions
                 else:
                     print("Error: Data isn't a list. Return []")
                     return []
