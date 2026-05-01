@@ -19,8 +19,9 @@ def convert_currency(amount: float, from_currency: str, to_currency: str = "RUB"
         сумма в новой валюте
 
     Example:
-        >>>print(convert_currency(10, "USD", "RUB"))
-        ...749.93688
+
+        >>> print(convert_currency(10, "USD", "RUB"))
+        ... 749.93688
     """
     load_dotenv()
     api_key = os.getenv("ERD_API_KEY")
@@ -41,8 +42,8 @@ def convert_currency(amount: float, from_currency: str, to_currency: str = "RUB"
             try:
                 result = float(data["result"])
                 return result
-            except KeyError:
-                raise RuntimeError("Ошибка: API изменил формат ответа: отсутствует поле 'result'")
+            except KeyError as err:
+                raise RuntimeError("Ошибка: API изменил формат ответа: отсутствует поле 'result'") from err
         case 400:
             raise RuntimeError("Ошибка запроса на сервер конвертации валюты")
         case 401:
