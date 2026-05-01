@@ -41,12 +41,15 @@ def test_get_amount_in_rub(mocked_convert_currency):
     assert get_amount_in_rub(transaction) == 749.93688
     mocked_convert_currency.assert_called_once_with(10.0, "USD")
 
+
+@patch("src.utils.convert_currency")
+def test_get_amount_in_rub_from_rub(mocked_convert_currency):
+
     transaction = {
         "operationAmount": {"amount": "749.93688", "currency": {"code": "RUB"}},
     }
     assert get_amount_in_rub(transaction) == 749.93688
     mocked_convert_currency.assert_not_called()
-
 
 @patch("src.utils.convert_currency")
 def test_get_amount_in_rub_err(mocked_convert_currency):
