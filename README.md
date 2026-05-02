@@ -44,6 +44,8 @@ poetry install
 | | [🔧 log](docs/api/decorators.md#log) | Декоратор для логирования вызовов функций. |
 | | [🔧 decorator](docs/api/decorators.md#decorator) | Декоратор для обёртки функции. |
 | | [🔧 wrapper](docs/api/decorators.md#wrapper) | Обёртка, выполняющая логирование. |
+| [**`external_api.py`**](docs/api/external_api.md) | | |
+| | [🔧 convert_currency](docs/api/external_api.md#convert_currency) | Функция конвертации валюты. |
 | [**`generators.py`**](docs/api/generators.md) | | |
 | | [🔧 filter_by_currency](docs/api/generators.md#filter_by_currency) | Фильтрует транзакции по значению ключа 'currency'. |
 | | [🔧 transaction_descriptions](docs/api/generators.md#transaction_descriptions) | Возвращает описание каждой операции по очереди. |
@@ -54,6 +56,9 @@ poetry install
 | [**`processing.py`**](docs/api/processing.md) | | |
 | | [🔧 filter_by_state](docs/api/processing.md#filter_by_state) | Фильтрует операции по значению ключа 'state'. |
 | | [🔧 sort_by_date](docs/api/processing.md#sort_by_date) | Сортирует операции по дате. |
+| [**`utils.py`**](docs/api/utils.md) | | |
+| | [🔧 read_json_file](docs/api/utils.md#read_json_file) | Функция чтения JSON-файла. |
+| | [🔧 get_amount_in_rub](docs/api/utils.md#get_amount_in_rub) | Функция конвертации валюты из USD и EUR в рубли. |
 | [**`widget.py`**](docs/api/widget.md) | | |
 | | [🔧 mask_account_card](docs/api/widget.md#mask_account_card) | Маскирует номер карты или счета в строке. |
 | | [🔧 get_date](docs/api/widget.md#get_date) | Преобразует дату из ISO формата в формат ДД.ММ.ГГГГ. |
@@ -81,31 +86,36 @@ poetry install
 
 ```
 📈 Покрытие кода:
-tests/test_decorators.py ....                                            [  5%]
-tests/test_generators.py ...................                             [ 29%]
-tests/test_masks.py ..............                                       [ 46%]
-tests/test_processing.py ...............                                 [ 65%]
+tests/test_decorators.py ....                                            [  4%]
+tests/test_external_api.py ..                                            [  6%]
+tests/test_generators.py ...................                             [ 27%]
+tests/test_masks.py ..............                                       [ 42%]
+tests/test_processing.py ...............                                 [ 59%]
+tests/test_utils.py ..........                                           [ 70%]
 tests/test_widget.py ...........................                         [100%]
-src/__init__.py         0      0   100%
-src/decorators.py      37      0   100%
-src/generators.py      35      0   100%
-src/masks.py           14      0   100%
-src/processing.py       9      0   100%
-src/widget.py          32      0   100%
-TOTAL                 127      0   100%
+src/__init__.py           0      0   100%
+src/decorators.py        37      0   100%
+src/external_api.py      34      0   100%
+src/generators.py        35      0   100%
+src/masks.py             14      0   100%
+src/processing.py         9      0   100%
+src/utils.py             32      0   100%
+src/widget.py            32      0   100%
+TOTAL                   193      0   100%
 Coverage HTML written to dir htmlcov
 
 🎯 Результаты тестов:
-============================= test session starts ==============================
-tests/test_decorators.py ....                                            [  5%]
-tests/test_generators.py ...................                             [ 29%]
-tests/test_masks.py ..............                                       [ 46%]
-tests/test_processing.py ...............                                 [ 65%]
+tests/test_decorators.py ....                                            [  4%]
+tests/test_external_api.py ..                                            [  6%]
+tests/test_generators.py ...................                             [ 27%]
+tests/test_masks.py ..............                                       [ 42%]
+tests/test_processing.py ...............                                 [ 59%]
+tests/test_utils.py ..........                                           [ 70%]
 tests/test_widget.py ...........................                         [100%]
 ================================ tests coverage ================================
--------------------------------------------------
--------------------------------------------------
-============================== 79 passed in 0.10s ==============================
+---------------------------------------------------
+---------------------------------------------------
+============================== 91 passed in 0.19s ==============================
 ```
 
 > 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)
@@ -130,6 +140,10 @@ tests/test_widget.py ...........................                         [100%]
 - [x] Доработать скрипт генерации README для testcoverage 
 - [x] Написать generators.py и test_generators.py
 - [x] Написать decorators.py и test_decorators.py
+- [x] Написать decorators.py и test_decorators.py
+- [x] Написать utils.py и test_utils.py
+- [x] Написать external_api.py и test_external_api.py
+- [x] Добавить шаблон .env.example и работу с .env
 - [x] Обновить документацию
 
 ## Команда проекта
