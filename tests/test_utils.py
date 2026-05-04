@@ -75,3 +75,26 @@ def test_get_amount_in_rub_err(mocked_convert_currency):
     }
     with pytest.raises(TypeError, match="Ошибка: Формат транзакции отличается. code должен быть строкой."):
         get_amount_in_rub(transaction)
+
+
+@patch("src.utils.convert_currency")
+def test_get_amount_in_rub_err_exception(mocked_convert_currency):
+    transaction = {
+        "operationAmount": {"amount": "10", "currency": {"code": "USD"}},
+    }
+    mocked_convert_currency.side_effect = RuntimeError("Подмена Ошибки авторизации на сервере конвертации валюты")
+    log_file = os.path.join("logs", "utils.log")
+    if os.path.exists(log_file):
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write("")
+
+    with pytest.raises(RuntimeError, match="Подмена Ошибки авторизации на сервере конвертации валюты"):
+        get_amount_in_rub(transaction)
+        mocked_convert_currency.assert_called_once()
+
+    with open(log_file, "r", encoding="utf-8") as f:
+        content = f.read()
+    assert (
+        "- src.utils - ERROR: Не удалось выполнить конверсию. Подмена Ошибки авторизации на сервере конвертации валюты"
+        in content
+    )
