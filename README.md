@@ -90,18 +90,18 @@ tests/test_decorators.py ....                                            [  4%]
 tests/test_external_api.py ..                                            [  6%]
 tests/test_generators.py ...................                             [ 27%]
 tests/test_masks.py ..............                                       [ 42%]
-tests/test_processing.py ...............                                 [ 59%]
-tests/test_utils.py ..........                                           [ 70%]
+tests/test_processing.py ...............                                 [ 58%]
+tests/test_utils.py ...........                                          [ 70%]
 tests/test_widget.py ...........................                         [100%]
 src/__init__.py           0      0   100%
 src/decorators.py        37      0   100%
 src/external_api.py      34      0   100%
 src/generators.py        35      0   100%
-src/masks.py             14      0   100%
+src/masks.py             29      0   100%
 src/processing.py         9      0   100%
-src/utils.py             32      0   100%
+src/utils.py             52      0   100%
 src/widget.py            32      0   100%
-TOTAL                   193      0   100%
+TOTAL                   228      0   100%
 Coverage HTML written to dir htmlcov
 
 🎯 Результаты тестов:
@@ -109,13 +109,13 @@ tests/test_decorators.py ....                                            [  4%]
 tests/test_external_api.py ..                                            [  6%]
 tests/test_generators.py ...................                             [ 27%]
 tests/test_masks.py ..............                                       [ 42%]
-tests/test_processing.py ...............                                 [ 59%]
-tests/test_utils.py ..........                                           [ 70%]
+tests/test_processing.py ...............                                 [ 58%]
+tests/test_utils.py ...........                                          [ 70%]
 tests/test_widget.py ...........................                         [100%]
 ================================ tests coverage ================================
 ---------------------------------------------------
 ---------------------------------------------------
-============================== 91 passed in 0.19s ==============================
+============================== 92 passed in 0.18s ==============================
 ```
 
 > 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)
@@ -144,6 +144,7 @@ tests/test_widget.py ...........................                         [100%]
 - [x] Написать utils.py и test_utils.py
 - [x] Написать external_api.py и test_external_api.py
 - [x] Добавить шаблон .env.example и работу с .env
+- [x] Добавить логирование в модули masks и utils
 - [x] Обновить документацию
 
 ## Команда проекта
