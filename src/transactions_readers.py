@@ -48,12 +48,12 @@ def get_transactions_csv(filepath: str) -> list[dict]:
                             row["id"] = int(row["id"]) if row["id"] else 0
                         except (ValueError, TypeError):
                             logger.warning(f"Не удалось преобразовать id: {row.get('id')}")
-                            row["id"] = 0
+                            row["id"] = None
                         try:
                             row["amount"] = int(row["amount"]) if row["amount"] else 0
                         except (ValueError, TypeError):
                             logger.warning(f"Не удалось преобразовать amount: {row.get('amount')}")
-                            row["amount"] = 0
+                            row["amount"] = None
                         transactions.append(row)
                     logger.debug("Транзакции успешно прочитаны")
                     return transactions
