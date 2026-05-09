@@ -3,6 +3,7 @@ import pytest
 from src.processing import ERROR_MSG_INVALID_TYPE
 from src.processing import filter_by_state
 from src.processing import process_bank_operations
+from src.processing import process_bank_search
 from src.processing import sort_by_date
 
 
@@ -141,15 +142,35 @@ def test_sort_by_date_stable_sort(operations):
     assert same_date_in_sorted[1]["id"] == 594226728
 
 
-def test_process_bank_operations():
-    data = [
+@pytest.fixture()
+def operations_descriptions() -> list[dict]:
+    return [
         {"description": "Перевод организации"},
         {"description": "Оплата услуг"},
         {"description": "Перевод организации"},
         {"description": "Покупка"},
     ]
+
+
+def test_process_bank_operations(operations_descriptions):
     categories = ["Перевод организации", "Оплата услуг", "Кредит"]
-
-    result = process_bank_operations(data, categories)
-
+    result = process_bank_operations(operations_descriptions, categories)
     assert result == {"Перевод организации": 2, "Оплата услуг": 1, "Кредит": 0}
+
+
+def test_process_bank_operations_wrong_type():
+    with pytest.raises(TypeError) as exc_info:
+        assert process_bank_operations(123, [])
+    assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
+
+
+def test_process_bank_search_wrong_type():
+    with pytest.raises(TypeError) as exc_info:
+        assert process_bank_search(123, [])
+    assert str(exc_info.value) == ERROR_MSG_INVALID_TYPE
+
+
+def test_process_bank_search(operations_descriptions):
+    search = "Перевод организации"
+    result = process_bank_search(operations_descriptions, search)
+    assert result == [{"description": "Перевод организации"}, {"description": "Перевод организации"}]
