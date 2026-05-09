@@ -154,8 +154,7 @@ def run_tests_and_get_results_src() -> str:
     try:
         # Запускаем pytest с coverage
         result = subprocess.run(
-            ["poetry", "run", "pytest", "--cov=src",
-             "--cov-report=term-missing", "--cov-report=html:htmlcov/src"],
+            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--cov-report=html:htmlcov/src"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -205,6 +204,7 @@ def run_tests_and_get_results_src() -> str:
     except FileNotFoundError:
         return "```\n⚠️ Pytest не найден. Установите: poetry add --group dev pytest pytest-cov\n```\n"
 
+
 def run_tests_and_get_results_main() -> str:
     """Запускает pytest с coverage и возвращает форматированный вывод."""
     print("\n🧪 Запуск тестов с coverage...")
@@ -212,8 +212,15 @@ def run_tests_and_get_results_main() -> str:
     try:
         # Запускаем pytest с coverage
         result = subprocess.run(
-            ["poetry", "run", "pytest", "tests/test_main.py",
-             "--cov=main", "--cov-report=term-missing", "--cov-report=html:htmlcov/main"],
+            [
+                "poetry",
+                "run",
+                "pytest",
+                "tests/test_main.py",
+                "--cov=main",
+                "--cov-report=term-missing",
+                "--cov-report=html:htmlcov/main",
+            ],
             capture_output=True,
             text=True,
             encoding="utf-8",

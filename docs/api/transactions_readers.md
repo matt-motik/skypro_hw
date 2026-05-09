@@ -1,6 +1,6 @@
 # Модуль: `transactions_readers.py`
 
-*Сгенерировано: 2026-05-05 22:29:15*
+*Сгенерировано: 2026-05-09 22:14:36*
 
 ---
 
@@ -54,6 +54,22 @@ Returns:
 Example:
 
     >>> transactions = get_transactions_excel("data/transactions_excel.xlsx")
+```
+
+---
+
+<div id="convert_to_operation"></div>
+
+## convert_to_operation
+
+**Тип:** function
+
+**Кратко:** Приводит транзакции к единому формату с операциями.
+
+### Полная документация
+
+```python
+Приводит транзакции к единому формату с операциями.
 ```
 
 ---
