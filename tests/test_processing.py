@@ -1,8 +1,9 @@
 import pytest
 
-from processing import ERROR_MSG_INVALID_TYPE
-from processing import filter_by_state
-from processing import sort_by_date
+from src.processing import ERROR_MSG_INVALID_TYPE
+from src.processing import filter_by_state
+from src.processing import process_bank_operations
+from src.processing import sort_by_date
 
 
 @pytest.fixture()
@@ -138,3 +139,17 @@ def test_sort_by_date_stable_sort(operations):
 
     assert same_date_in_sorted[0]["id"] == 594226727
     assert same_date_in_sorted[1]["id"] == 594226728
+
+
+def test_process_bank_operations():
+    data = [
+        {"description": "Перевод организации"},
+        {"description": "Оплата услуг"},
+        {"description": "Перевод организации"},
+        {"description": "Покупка"},
+    ]
+    categories = ["Перевод организации", "Оплата услуг", "Кредит"]
+
+    result = process_bank_operations(data, categories)
+
+    assert result == {"Перевод организации": 2, "Оплата услуг": 1, "Кредит": 0}

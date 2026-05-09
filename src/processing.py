@@ -1,7 +1,8 @@
 """Модуль для обработки данных банковских операций."""
+
+from collections import Counter
 import logging
 import re
-from collections import Counter
 
 ERROR_MSG_INVALID_TYPE = "Ошибка: operations должен быть cписком словарей с банковскими операциями."
 
@@ -24,7 +25,7 @@ def filter_by_state(operations: list[dict], state: str = "EXECUTED") -> list[dic
         Отфильтрованный список операций
     """
     if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
-        logger.error(f"operations должен быть списком словарей операций.")
+        logger.error("operations должен быть списком словарей операций.")
         raise TypeError(ERROR_MSG_INVALID_TYPE)
     return [operation for operation in operations if operation.get("state") == state]
 
@@ -40,7 +41,7 @@ def sort_by_date(operations: list[dict], reverse: bool = True) -> list[dict]:
         Отсортированный список операций
     """
     if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
-        logger.error(f"operations должен быть списком словарей операций.")
+        logger.error("operations должен быть списком словарей операций.")
         raise TypeError(ERROR_MSG_INVALID_TYPE)
     return sorted(operations, key=lambda operation: operation.get("date", ""), reverse=reverse)
 
@@ -61,7 +62,7 @@ def process_bank_search(operations: list[dict], search: str) -> list[dict]:
         ... print(results)
     """
     if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
-        logger.error(f"operations должен быть списком словарей операций.")
+        logger.error("operations должен быть списком словарей операций.")
         raise TypeError(ERROR_MSG_INVALID_TYPE)
 
     results = []
@@ -90,7 +91,7 @@ def process_bank_operations(operations: list[dict], categories: list) -> dict:
         ... print(results)
     """
     if not isinstance(operations, list) or not all(isinstance(item, dict) for item in operations):
-        logger.error(f"operations должен быть списком словарей операций.")
+        logger.error("operations должен быть списком словарей операций.")
         raise TypeError(ERROR_MSG_INVALID_TYPE)
 
     counter = Counter(op.get("description", "") for op in operations)
