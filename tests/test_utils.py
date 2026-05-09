@@ -5,6 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from src.utils import get_amount_in_rub
+from src.utils import linearize_operation
 from src.utils import read_json_file
 
 
@@ -17,7 +18,7 @@ from src.utils import read_json_file
         ("temp.json", "", []),
         ("temp.json", """{"answer": 42 }""", []),
         ("temp.json", """Non JSON data, or error in JSON""", []),
-        ("temp.json", """[ {"id": 0} , {"id": 2} ]""", [{"id": 0}, {"id": 2}]),
+        ("temp.json", """[ {"id": 0} , {}, {"id": 2} ]""", [{"id": 0}, {"id": 2}]),
     ],
 )
 def test_read_json_file(file_path, data, expected_result):
@@ -98,3 +99,35 @@ def test_get_amount_in_rub_err_exception(mocked_convert_currency):
         "- src.utils - ERROR: Не удалось выполнить конверсию. Подмена Ошибки авторизации на сервере конвертации валюты"
         in content
     )
+
+
+@pytest.fixture()
+def operation() -> dict:
+    return {
+        "id": 441945886,
+        "state": "EXECUTED",
+        "date": "2019-08-26T10:50:58.294041",
+        "operationAmount": {"amount": "31957.58", "currency": {"name": "руб.", "code": "RUB"}},
+        "description": "Перевод организации",
+        "from": "Maestro 1596837868705199",
+        "to": "Счет 64686473678894779589",
+    }
+
+
+@pytest.fixture()
+def transaction() -> dict:
+    return {
+        "id": 441945886,
+        "state": "EXECUTED",
+        "date": "2019-08-26T10:50:58.294041",
+        "amount": 31957.58,
+        "currency_name": "руб.",
+        "currency_code": "RUB",
+        "description": "Перевод организации",
+        "from": "Maestro 1596837868705199",
+        "to": "Счет 64686473678894779589",
+    }
+
+
+def test_linearize_operation(operation, transaction):
+    assert linearize_operation(operation) == transaction
