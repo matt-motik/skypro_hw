@@ -16,6 +16,26 @@ logger.addHandler(file_handler)
 logger.setLevel(logging.DEBUG)
 
 
+def linearize_operation(operation: dict) -> dict:
+    """Приводит операции к единому формату с транзакциями."""
+    normalized = {}
+
+    normalized["id"] = operation.get("id")
+    normalized["state"] = operation.get("state")
+    normalized["date"] = operation.get("date")
+    normalized["description"] = operation.get("description")
+    normalized["from"] = operation.get("from")
+    normalized["to"] = operation.get("to")
+
+    amount_data = operation.get("operationAmount", {})
+    normalized["amount"] = float(amount_data.get("amount", 0))
+    currency = amount_data.get("currency", {})
+    normalized["currency_name"] = currency.get("name")
+    normalized["currency_code"] = currency.get("code")
+
+    return normalized
+
+
 def read_json_file(filename: str) -> list:
     """Функция чтения JSON-файла.
 
@@ -44,6 +64,8 @@ def read_json_file(filename: str) -> list:
                     return []
                 if isinstance(transactions, list):
                     logger.debug("Транзакции успешно прочитаны'")
+                    while {} in transactions:
+                        transactions.remove({})
                     return transactions
                 else:
                     logger.warning("Data isn't a list. Return [].")
