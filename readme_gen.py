@@ -147,14 +147,15 @@ def generate_detailed_docs(all_docs: List[Dict[str, Any]]) -> None:
                 f.write("---\n\n")
 
 
-def run_tests_and_get_results() -> str:
+def run_tests_and_get_results_src() -> str:
     """Запускает pytest с coverage и возвращает форматированный вывод."""
     print("\n🧪 Запуск тестов с coverage...")
 
     try:
         # Запускаем pytest с coverage
         result = subprocess.run(
-            ["poetry", "run", "pytest", "--cov=src", "--cov-report=term-missing", "--cov-report=html"],
+            ["poetry", "run", "pytest", "--cov=src",
+             "--cov-report=term-missing", "--cov-report=html:htmlcov/src"],
             capture_output=True,
             text=True,
             encoding="utf-8",
@@ -169,7 +170,7 @@ def run_tests_and_get_results() -> str:
                 coverage_summary += line + "\n"
 
         # Форматируем вывод для Markdown
-        formatted_output = "### 📊 Результаты тестов\n\n"
+        formatted_output = "### 📊 Результаты тестов SRC\n\n"
         formatted_output += "```\n"
 
         # Добавляем основную информацию
@@ -189,13 +190,71 @@ def run_tests_and_get_results() -> str:
                 test_lines.append(line)
 
         if test_lines:
-            formatted_output += "🎯 Результаты тестов:\n"
+            formatted_output += "🎯 Результаты тестов src:\n"
             formatted_output += "\n".join(test_lines[-20:])  # Последние 20 строк
 
         formatted_output += "\n```\n\n"
 
         # Добавляем ссылку на HTML отчёт
-        formatted_output += "> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/index.html)\n\n"
+        formatted_output += "> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/src/index.html)\n\n"
+
+        return formatted_output
+
+    except subprocess.CalledProcessError as e:
+        return f"```\n❌ Ошибка при запуске тестов: {e}\n```\n"
+    except FileNotFoundError:
+        return "```\n⚠️ Pytest не найден. Установите: poetry add --group dev pytest pytest-cov\n```\n"
+
+def run_tests_and_get_results_main() -> str:
+    """Запускает pytest с coverage и возвращает форматированный вывод."""
+    print("\n🧪 Запуск тестов с coverage...")
+
+    try:
+        # Запускаем pytest с coverage
+        result = subprocess.run(
+            ["poetry", "run", "pytest", "tests/test_main.py",
+             "--cov=main", "--cov-report=term-missing", "--cov-report=html:htmlcov/main"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+
+        output = result.stdout + result.stderr
+
+        # Парсим coverage summary
+        coverage_summary = ""
+        for line in output.split("\n"):
+            if "TOTAL" in line or "Coverage" in line or "%" in line:
+                coverage_summary += line + "\n"
+
+        # Форматируем вывод для Markdown
+        formatted_output = "### 📊 Результаты тестов maim.py\n\n"
+        formatted_output += "```\n"
+
+        # Добавляем основную информацию
+        if "FAILED" in output or "ERROR" in output:
+            formatted_output += "❌ Некоторые тесты не прошли!\n\n"
+
+        # Выводим summary coverage
+        if coverage_summary:
+            formatted_output += "📈 Покрытие кода:\n"
+            formatted_output += coverage_summary + "\n"
+
+        # Выводим последние строки с результатами
+        lines = output.split("\n")
+        test_lines = []
+        for line in lines[-30:]:  # Последние 30 строк
+            if any(keyword in line for keyword in ["PASSED", "FAILED", "ERROR", "test_", "===", "---"]):
+                test_lines.append(line)
+
+        if test_lines:
+            formatted_output += "🎯 Результаты тестов main.py:\n"
+            formatted_output += "\n".join(test_lines[-20:])  # Последние 20 строк
+
+        formatted_output += "\n```\n\n"
+
+        # Добавляем ссылку на HTML отчёт
+        formatted_output += "> 📊 **HTML отчёт покрытия**: [`htmlcov/index.html`](htmlcov/main/index.html)\n\n"
 
         return formatted_output
 
@@ -339,8 +398,10 @@ def main() -> None:
 
     # ===== 5. Запуск тестов и обновление секции =====
     print("\n" + "=" * 50)
-    test_results = run_tests_and_get_results()
-    update_readme_with_test_section(test_results)
+    test_results_src = run_tests_and_get_results_src()
+    test_results_main = run_tests_and_get_results_main()
+    update_readme_with_test_section(test_results_src + test_results_main)
+    print("=" * 50)
 
     print("\n" + "=" * 50)
     print("🎉 Готово!")
