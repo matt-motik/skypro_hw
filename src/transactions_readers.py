@@ -95,3 +95,19 @@ def get_transactions_excel(filepath: str) -> list[dict]:
                 return []
     logger.error("Неверный путь. Возвращаем []")
     return []
+
+
+def convert_to_operation(transaction: dict) -> dict:
+    """Приводит транзакции к единому формату с операциями."""
+    return {
+        "id": transaction.get("id"),
+        "state": transaction.get("state"),
+        "date": transaction.get("date"),
+        "description": transaction.get("description"),
+        "from": transaction.get("from"),
+        "to": transaction.get("to"),
+        "operationAmount": {
+            "amount": float(transaction.get("amount", 0)),
+            "currency": {"name": transaction.get("currency_name"), "code": transaction.get("currency_code")},
+        },
+    }
