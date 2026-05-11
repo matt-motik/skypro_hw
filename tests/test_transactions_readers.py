@@ -6,6 +6,7 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
+from src.transactions_readers import convert_to_operation
 from src.transactions_readers import get_transactions_csv
 from src.transactions_readers import get_transactions_excel
 
@@ -120,3 +121,35 @@ def test_get_transactions_excel(
         assert result[2]["id"] == 3
         assert result[2]["amount"] == 300
         assert result[2]["currency_name"] == "RUB"
+
+
+@pytest.fixture()
+def operation() -> dict:
+    return {
+        "id": 441945886,
+        "state": "EXECUTED",
+        "date": "2019-08-26T10:50:58.294041",
+        "operationAmount": {"amount": 31957.58, "currency": {"name": "руб.", "code": "RUB"}},
+        "description": "Перевод организации",
+        "from": "Maestro 1596837868705199",
+        "to": "Счет 64686473678894779589",
+    }
+
+
+@pytest.fixture()
+def transaction() -> dict:
+    return {
+        "id": 441945886,
+        "state": "EXECUTED",
+        "date": "2019-08-26T10:50:58.294041",
+        "amount": "31957.58",
+        "currency_name": "руб.",
+        "currency_code": "RUB",
+        "description": "Перевод организации",
+        "from": "Maestro 1596837868705199",
+        "to": "Счет 64686473678894779589",
+    }
+
+
+def test_convert_to_operation(operation, transaction):
+    assert convert_to_operation(transaction) == operation
